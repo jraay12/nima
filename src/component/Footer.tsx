@@ -98,7 +98,7 @@ export default function NimaFooter() {
         {/* Bottom bar */}
         <div className="border-t border-gray-200 pt-5">
           <p className="text-xs text-gray-400 text-center">
-            © 2026 NIMA. Nevada Iranian-American Medical Association. All rights reserved.
+            © 2024 NIMA. Nevada Iranian-American Medical Association. All rights reserved.
           </p>
         </div>
 

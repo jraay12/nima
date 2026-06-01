@@ -26,7 +26,7 @@ function FadeIn({
           observer.disconnect();
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -56,9 +56,8 @@ function FadeIn({
 
 const BoardMember = () => {
   return (
-    <section className="bg-[#fafafa] py-20 px-6 overflow-hidden">
+    <section className="bg-[#fafafa] py-14 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-
         {/* Section Title */}
         <div className="text-center mb-12">
           <FadeIn direction="up" delay={0}>
@@ -90,16 +89,11 @@ const BoardMember = () => {
 
         {/* CTA banner */}
         <FadeIn direction="up" delay={100}>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white mt-10 rounded-2xl shadow-sm border border-gray-100 px-8 py-10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white mt-10 rounded-2xl shadow-sm border border-gray-100 px-8 py-4">
             <div className="max-w-2xl">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 NIMA Members
               </h1>
-              <p className="text-gray-600 leading-relaxed">
-                Our organization is comprised of hundreds of dedicated medical
-                professionals across Nevada. Connect with colleagues, specialists,
-                and community leaders through our comprehensive member network.
-              </p>
             </div>
 
             <button className="group inline-flex items-center gap-2 bg-[#027027] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#01551d] active:scale-95 transition-all whitespace-nowrap">
@@ -108,7 +102,6 @@ const BoardMember = () => {
             </button>
           </div>
         </FadeIn>
-
       </div>
     </section>
   );

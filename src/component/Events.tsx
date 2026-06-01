@@ -71,7 +71,7 @@ const Events = () => {
     navigate(`/event-details/${id}`);
   };
   return (
-    <div className="py-20 px-6 bg-[#fafafa] overflow-hidden">
+    <div className="pb-20 px-6 bg-[#fafafa] overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <div className="text-center mb-12">

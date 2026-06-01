@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Breadcrumb from "../../component/BreadCrumb";
 import {
   CalendarDays,
@@ -36,7 +38,8 @@ type EventFormValues = {
   day: string;
   month: string;
   year: string;
-  timeRange: string;
+  start_time: string;
+  end_time: string;
   timeNote: string;
   venue: string;
   address: string;
@@ -161,6 +164,7 @@ const CreateEventPage = () => {
   const [submitType, setSubmitType] = useState<"draft" | "publish" | null>(
     null,
   );
+  const [eventDate, setEventDate] = useState<Date | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -177,7 +181,8 @@ const CreateEventPage = () => {
       day: "",
       month: "",
       year: new Date().getFullYear().toString(),
-      timeRange: "",
+      start_time: "",
+      end_time: "",
       timeNote: "",
       venue: "",
       address: "",
@@ -209,7 +214,8 @@ const CreateEventPage = () => {
     formData.append("day", String(Number(data.day)));
     formData.append("month", data.month);
     formData.append("year", data.year);
-    formData.append("timeRange", data.timeRange);
+    formData.append("start_time", data.start_time);
+    formData.append("end_time", data.end_time);
     formData.append("timeNote", data.timeNote);
     formData.append("venue", data.venue);
     formData.append("address", data.address);
@@ -222,7 +228,6 @@ const CreateEventPage = () => {
     }
 
     formData.append("featuredSpeaker", JSON.stringify(data.featuredSpeaker));
-
   };
 
   if (submitted) {
@@ -240,7 +245,7 @@ const CreateEventPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto  pb-20">
+    <div className=" mx-auto  pb-20">
       <Breadcrumb />
 
       <div className="mt-4 mb-8 flex items-start justify-between gap-4 flex-wrap">
@@ -380,89 +385,59 @@ const CreateEventPage = () => {
               subtitle="When will the event take place?"
             />
 
-            <div className="space-y-5">
-              {/* Date row */}
-              <div className="grid grid-cols-3 gap-4">
-                <InputField label="Day" required error={errors.day?.message}>
-                  <input
-                    {...register("day", {
-                      required: "Required",
-                      min: { value: 1, message: "Min 1" },
-                      max: { value: 31, message: "Max 31" },
-                      pattern: { value: /^\d+$/, message: "Numbers only" },
-                    })}
-                    type="number"
-                    min={1}
-                    max={31}
-                    placeholder="18"
-                    className={inputCls}
-                  />
-                </InputField>
-
-                <InputField
-                  label="Month"
-                  required
-                  error={errors.month?.message}
-                >
-                  <div className="relative">
-                    <select
-                      {...register("month", { required: "Required" })}
-                      className={selectCls}
-                    >
-                      <option value="">Month…</option>
-                      {MONTHS.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </InputField>
-
-                <InputField label="Year" required error={errors.year?.message}>
-                  <input
-                    {...register("year", {
-                      required: "Required",
-                      min: { value: 2024, message: "Min 2024" },
-                      max: { value: 2035, message: "Max 2035" },
-                      pattern: { value: /^\d{4}$/, message: "4-digit year" },
-                    })}
-                    type="number"
-                    min={2024}
-                    max={2035}
-                    placeholder="2026"
-                    className={inputCls}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* DATE PICKER (WIDER) */}
+              <div className="md:col-span-2">
+                <InputField label="Event Date" required>
+                  <DatePicker
+                    selected={eventDate}
+                    onChange={(date: any) => setEventDate(date)}
+                    dateFormat="MMMM d, yyyy"
+                    placeholderText="Select event date"
+                    className={inputCls + " w-full"}
                   />
                 </InputField>
               </div>
 
-              {/* Time range */}
-              <InputField
-                label="Time Range"
-                required
-                error={errors.timeRange?.message}
-              >
-                <div className="relative">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    {...register("timeRange", {
-                      required: "Time range is required",
-                    })}
-                    placeholder="e.g. 6:00 PM – 9:00 PM"
-                    className={inputCls + " pl-10"}
-                  />
-                </div>
-              </InputField>
+              {/* START TIME */}
+              <div className="md:col-span-1">
+                <InputField
+                  label="Start Time"
+                  required
+                  error={errors.start_time?.message}
+                >
+                  <div className="relative">
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="time"
+                      {...register("start_time", {
+                        required: "Start time is required",
+                      })}
+                      className={inputCls + " pl-10 w-full"}
+                    />
+                  </div>
+                </InputField>
+              </div>
 
-              {/* Time note */}
-              <InputField label="Time Note" error={errors.timeNote?.message}>
-                <input
-                  {...register("timeNote")}
-                  placeholder="e.g. Networking reception, keynote presentations…"
-                  className={inputCls}
-                />
-              </InputField>
+              {/* END TIME */}
+              <div className="md:col-span-1">
+                <InputField
+                  label="End Time"
+                  required
+                  error={errors.end_time?.message}
+                >
+                  <div className="relative">
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="time"
+                      {...register("end_time", {
+                        required: "End time is required",
+                      })}
+                      className={inputCls + " pl-10 w-full"}
+                    />
+                  </div>
+                </InputField>
+              </div>
             </div>
           </div>
 
