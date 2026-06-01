@@ -8,6 +8,10 @@ import EventPage from "./pages/EventPage";
 import CommunityPage from "./pages/CommunityPage";
 import EventDetailsPage from "./pages/EventDetailsPage";
 import LoginPage from "./pages/private/LoginPage";
+import AdministratorLayout from "./layouts/AdministratorLayout";
+import DashboardPage from "./pages/private/DashboardPage";
+import EventsPage from "./pages/private/EventsPage";
+import MembersPage from "./pages/private/MembersPage";
 
 function App() {
   return (
@@ -21,6 +25,12 @@ function App() {
         <Route path="/event-details/:id" element={<EventDetailsPage />} />
       </Route>
       <Route path="/administrator/login" element={<LoginPage />} />
+
+      <Route element={<AdministratorLayout />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/event" element={<EventsPage />} />
+        <Route path="/member" element={<MembersPage />} />
+      </Route>
     </Routes>
   );
 }
