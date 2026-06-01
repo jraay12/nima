@@ -7,6 +7,7 @@ import ContactPage from "./pages/ContactPage";
 import EventPage from "./pages/EventPage";
 import CommunityPage from "./pages/CommunityPage";
 import EventDetailsPage from "./pages/EventDetailsPage";
+import LoginPage from "./pages/private/LoginPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/event-details/:id" element={<EventDetailsPage />} />
       </Route>
+      <Route path="/administrator/login" element={<LoginPage />} />
     </Routes>
   );
 }
