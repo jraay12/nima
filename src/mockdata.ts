@@ -45,3 +45,37 @@ export const missions = [
     icon: Stethoscope,
   },
 ];
+
+export const boardMembers = [
+  {
+    name: "Dr. Sarah Ahmed",
+    specialty: "Physical Medicine & Rehabilitation",
+    role: "Chairman of the Board",
+    description:
+      "Leads strategic direction and governance for NIMA, ensuring alignment with its mission of advancing medical excellence and community impact in Nevada.",
+    image:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80",
+    icon: GraduationCap,
+  },
+  {
+    name: "Dr. Michael Rahimi",
+    specialty: "Internal Medicine",
+    role: "Vice Chairman",
+    description:
+      "Supports organizational leadership and oversees collaborative initiatives that strengthen physician engagement and professional development.",
+    image:
+      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=600&q=80",
+    icon: ShieldCheck,
+  },
+  {
+    name: "Dr. Leila Hosseini",
+    specialty: "Cardiology",
+    role: "Secretary",
+    description:
+      "Manages board communications, documentation, and ensures transparent coordination across all committees and programs.",
+    image:
+      "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=600&q=80",
+    icon: Handshake,
+  },
+
+];

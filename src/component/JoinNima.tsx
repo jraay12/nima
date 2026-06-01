@@ -12,7 +12,7 @@ import { Link } from "react-router";
 
 const JoinNima = () => {
   return (
-    <div className="bg-[#f5f5f7] ">
+    <div className="bg-[#f5f5f7] pb-10">
       <section className=" py-24 px-6">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <span className="uppercase tracking-[0.2em] text-sm font-bold text-[#027027] mb-4">
