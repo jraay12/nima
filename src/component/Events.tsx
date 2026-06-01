@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   MapPin,
   Clock,
@@ -8,71 +9,118 @@ import {
 } from "lucide-react";
 import { events } from "../mockdata";
 
+function FadeIn({
+  children,
+  delay = 0,
+  direction = "up",
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  direction?: "up" | "left" | "right" | "none";
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const translate = {
+    up: "translate-y-8",
+    left: "-translate-x-8",
+    right: "translate-x-8",
+    none: "",
+  }[direction];
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${className} ${
+        visible
+          ? "opacity-100 translate-x-0 translate-y-0"
+          : `opacity-0 ${translate}`
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
 const Events = () => {
   return (
-    <div className="py-20 px-6 bg-[#fafafa]">
+    <div className="py-20 px-6 bg-[#fafafa] overflow-hidden">
       <div className="max-w-7xl mx-auto">
+
         {/* Section Title */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#027027]">
-            Upcoming Events
-          </h2>
-
-          <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
-            Leadership team guiding NIMA’s mission in advancing healthcare,
-            collaboration, and community service.
-          </p>
+          <FadeIn direction="up" delay={0}>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#027027]">
+              Upcoming Events
+            </h2>
+          </FadeIn>
+          <FadeIn direction="up" delay={120}>
+            <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+              Leadership team guiding NIMA's mission in advancing healthcare,
+              collaboration, and community service.
+            </p>
+          </FadeIn>
         </div>
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 gap-8">
-          {events.slice(0, 3).map((event) => (
-            <NimaEventCard
+          {events.slice(0, 3).map((event, i) => (
+            <FadeIn
               key={event.title}
-              title={event.title}
-              speaker={event.speaker}
-              speakerTitle={event.speakerTitle}
-              timeRange={event.timeRange}
-              timeNote={event.timeNote}
-              venue={event.venue}
-              address={event.address}
-              city={event.city}
-              day={event.day}
-              month={event.month}
-              year={event.year}
-              image={event.image}
-              onRegister={() => console.log("Register:", event.title)}
-              onFindMore={() => console.log("Find more:", event.title)}
-            />
+              direction={i % 2 === 0 ? "left" : "right"}
+              delay={i * 100}
+            >
+              <NimaEventCard
+                title={event.title}
+                speaker={event.speaker}
+                speakerTitle={event.speakerTitle}
+                timeRange={event.timeRange}
+                timeNote={event.timeNote}
+                venue={event.venue}
+                address={event.address}
+                city={event.city}
+                day={event.day}
+                month={event.month}
+                year={event.year}
+                image={event.image}
+                onRegister={() => console.log("Register:", event.title)}
+                onFindMore={() => console.log("Find more:", event.title)}
+              />
+            </FadeIn>
           ))}
         </div>
-        <div className="flex justify-center mt-10">
-          <button
-            className="
-      group
-      inline-flex
-      items-center
-      gap-3
-      border
-      border-[#027027]
-      text-[#027027]
-      bg-transparent
-      px-6 py-3
-      rounded-lg
-      font-semibold
-      transition-all
-      duration-200
-      hover:bg-green-50
-      hover:-translate-y-0.5
-    "
-          >
-            <span>View All Events</span>
 
-            <span className="border-l border-[#027027]/30 pl-3 flex items-center">
-              <Calendar className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </span>
-          </button>
-        </div>
+        {/* View All button */}
+        <FadeIn direction="up" delay={100}>
+          <div className="flex justify-center mt-10">
+            <button className="group inline-flex items-center gap-3 border border-[#027027] text-[#027027] bg-transparent px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-green-50 hover:-translate-y-0.5 active:scale-95">
+              <span>View All Events</span>
+              <span className="border-l border-[#027027]/30 pl-3 flex items-center">
+                <Calendar className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          </div>
+        </FadeIn>
+
       </div>
     </div>
   );
@@ -118,15 +166,18 @@ function NimaEventCard({
   year,
 }: Partial<EventCardProps>) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative">
+      {/* Bottom green sweep */}
+      <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#027027] group-hover:w-full transition-all duration-500 z-10" />
+
       <div className="grid grid-cols-1 md:grid-cols-3">
         {/* IMAGE SECTION */}
-        <div className="relative md:col-span-1 h-64 md:h-full bg-gray-100">
+        <div className="relative md:col-span-1 h-64 md:h-full bg-gray-100 overflow-hidden">
           {image ? (
             <img
               src={image}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
@@ -137,12 +188,8 @@ function NimaEventCard({
 
           {/* Date overlay */}
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg text-center shadow-sm">
-            <p className="text-xl font-bold text-gray-900 leading-none">
-              {day}
-            </p>
-            <p className="text-xs font-semibold text-[#027027] tracking-widest">
-              {month}
-            </p>
+            <p className="text-xl font-bold text-gray-900 leading-none">{day}</p>
+            <p className="text-xs font-semibold text-[#027027] tracking-widest">{month}</p>
             <p className="text-[10px] text-gray-500">{year}</p>
           </div>
         </div>
@@ -158,9 +205,7 @@ function NimaEventCard({
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-bold text-gray-900 leading-snug">
-            {title}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 leading-snug">{title}</h2>
 
           {/* Speaker */}
           <div className="flex items-start gap-2 text-sm text-gray-600">
@@ -175,8 +220,7 @@ function NimaEventCard({
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Clock className="w-4 h-4" />
             <span>
-              <span className="text-gray-800 font-medium">{timeRange}</span> —{" "}
-              {timeNote}
+              <span className="text-gray-800 font-medium">{timeRange}</span> — {timeNote}
             </span>
           </div>
 
@@ -184,10 +228,7 @@ function NimaEventCard({
           <div className="flex items-start gap-2 text-sm text-gray-600">
             <MapPin className="w-4 h-4 mt-0.5" />
             <div>
-              <p>
-                {venue}, {address}, {city}
-              </p>
-
+              <p>{venue}, {address}, {city}</p>
               <a
                 href={mapUrl}
                 className="inline-flex items-center gap-1 text-[#027027] text-xs mt-1 hover:underline"
@@ -202,14 +243,13 @@ function NimaEventCard({
           <div className="flex gap-3 mt-2">
             <button
               onClick={onRegister}
-              className="bg-[#027027] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#01551d] transition"
+              className="bg-[#027027] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#01551d] active:scale-95 transition-all"
             >
               Register
             </button>
-
             <button
               onClick={onFindMore}
-              className="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+              className="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg text-sm hover:bg-gray-50 active:scale-95 transition-all"
             >
               Learn more
             </button>
