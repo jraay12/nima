@@ -45,7 +45,7 @@ const Sidebar = () => {
     <aside
       className={`relative flex flex-col bg-[#014d1a] transition-all duration-300 ease-in-out ${
         collapsed ? "w-[68px]" : "w-[230px]"
-      } min-h-screen shrink-0`}
+      } h-screen shrink-0`}
     >
       {/* Subtle dot pattern */}
       <div
