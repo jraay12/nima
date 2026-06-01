@@ -5,6 +5,7 @@ import PublicLayout from "./layouts/PublicLayout";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ContactPage from "./pages/ContactPage";
 import EventPage from "./pages/EventPage";
+import CommunityPage from "./pages/CommunityPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/events" element={<EventPage />} />
+        <Route path="/community" element={<CommunityPage />} />
       </Route>
     </Routes>
   );

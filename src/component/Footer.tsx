@@ -24,8 +24,8 @@ const navigation: FooterColumn[] = [
   {
     heading: "Community",
     links: [
-      { label: "Vendors", href: "#" },
-      { label: "Supporters", href: "#" },
+      { label: "Vendors", href: "/community" },
+      { label: "Supporters", href: "/community" },
     ],
   },
   {

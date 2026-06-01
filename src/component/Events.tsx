@@ -8,6 +8,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { events } from "../mockdata";
+import {  useNavigate } from "react-router";
 
 function FadeIn({
   children,
@@ -62,6 +63,7 @@ function FadeIn({
 }
 
 const Events = () => {
+  const navigate = useNavigate()
   return (
     <div className="py-20 px-6 bg-[#fafafa] overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -128,7 +130,10 @@ const Events = () => {
         {/* View All button */}
         <FadeIn direction="up" delay={100}>
           <div className="flex justify-center mt-10">
-            <button className="group inline-flex items-center gap-3 border border-[#027027] text-[#027027] bg-transparent px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-green-50 hover:-translate-y-0.5 active:scale-95">
+            <button
+              onClick={() => navigate("/events")}
+              className="group inline-flex items-center gap-3 border border-[#027027] text-[#027027] bg-transparent px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-green-50 hover:-translate-y-0.5 active:scale-95"
+            >
               <span>View All Events</span>
               <span className="border-l border-[#027027]/30 pl-3 flex items-center">
                 <Calendar className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
