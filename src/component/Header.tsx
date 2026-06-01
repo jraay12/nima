@@ -5,7 +5,7 @@ const NAV_LINKS = [
   { label: "Members", href: "#members" },
   { label: "Events", href: "#events" },
   { label: "Community", href: "#community" },
-  { label: "Contact Us", href: "#contact" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const Header = () => {

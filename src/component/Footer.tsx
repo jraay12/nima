@@ -31,7 +31,7 @@ const navigation: FooterColumn[] = [
   {
     heading: "Contact",
     links: [
-      { label: "Contact Us", href: "#" },
+      { label: "Contact Us", href: "/contact" },
       { label: "Privacy Policy", href: "/privacy-policy" },
     ],
   },

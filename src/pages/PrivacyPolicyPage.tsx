@@ -301,7 +301,7 @@ const PrivacyPolicyPage = () => {
               your personal data, don't hesitate to reach out.
             </p>
             <a
-              href="mailto:info@nimanv.com"
+              href="/contact"
               className="inline-flex items-center gap-2 bg-white text-[#006e25] font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 active:scale-95 transition-all"
             >
               Contact Us
