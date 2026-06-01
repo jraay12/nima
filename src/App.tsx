@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import PublicLayout from "./layouts/PublicLayout";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ContactPage from "./pages/ContactPage";
+import EventPage from "./pages/EventPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/events" element={<EventPage />} />
       </Route>
     </Routes>
   );

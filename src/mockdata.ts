@@ -147,7 +147,7 @@ export const events = [
     address: "3131 Las Vegas Blvd S",
     city: "Las Vegas, NV 89109",
     image:
-      "https://images.unsplash.com/photo-1519167758481-83f29c8f6c8a?auto=format&fit=crop&w=1200&q=80",
+      "",
     day: 28,
     month: "SEP",
     year: 2026,

@@ -162,7 +162,7 @@ interface EventCardProps {
   year: number;
 }
 
-function NimaEventCard({
+export function NimaEventCard({
   image,
   badge = "SIGNATURE EVENT",
   title,
