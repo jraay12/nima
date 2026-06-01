@@ -6,6 +6,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ContactPage from "./pages/ContactPage";
 import EventPage from "./pages/EventPage";
 import CommunityPage from "./pages/CommunityPage";
+import EventDetailsPage from "./pages/EventDetailsPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/events" element={<EventPage />} />
         <Route path="/community" element={<CommunityPage />} />
+        <Route path="/event-details/:id" element={<EventDetailsPage />} />
       </Route>
     </Routes>
   );

@@ -2,13 +2,8 @@ import { Calendar } from "lucide-react";
 import { NimaEventCard } from "../component/Events";
 import EventSearch from "../component/SearchComponent";
 import { events } from "../mockdata";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 /* ----------------------------
    MONTH MAP
@@ -58,7 +53,7 @@ function FadeIn({
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(el);
@@ -92,7 +87,7 @@ function FadeIn({
 ----------------------------- */
 const EventPage = () => {
   const [selectedDate, setSelectedDate] = useState<string>("");
-
+  const navigate = useNavigate();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -124,10 +119,14 @@ const EventPage = () => {
     });
   }, []);
 
+  // Methods
+  const handleLearnMore = (id: string) => {
+    navigate(`/event-details/${id}`);
+  };
+
   return (
     <div className="bg-[#fafafa] min-h-screen py-16 px-6">
       <div className="max-w-7xl mx-auto space-y-12">
-
         {/* HEADER */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl md:text-4xl font-bold text-[#027027]">
@@ -142,14 +141,11 @@ const EventPage = () => {
 
         {/* SEARCH */}
         <FadeIn>
-          <EventSearch
-            onSearch={(query) => console.log("Search:", query)}
-          />
+          <EventSearch onSearch={(query) => console.log("Search:", query)} />
         </FadeIn>
 
         {/* FILTER BAR */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-
           {/* DATE PICKER */}
           <input
             type="date"
@@ -184,7 +180,6 @@ const EventPage = () => {
 
         {/* EVENTS */}
         <div className="grid grid-cols-1 gap-8">
-
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, i) => (
               <FadeIn
@@ -192,7 +187,10 @@ const EventPage = () => {
                 direction={i % 2 === 0 ? "left" : "right"}
                 delay={i * 80}
               >
-                <NimaEventCard {...event} />
+                <NimaEventCard
+                  {...event}
+                  onFindMore={() => handleLearnMore(event.id)}
+                />
               </FadeIn>
             ))
           ) : (
@@ -228,7 +226,6 @@ const EventPage = () => {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

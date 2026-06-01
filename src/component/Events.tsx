@@ -8,7 +8,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { events } from "../mockdata";
-import {  useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 function FadeIn({
   children,
@@ -63,7 +63,13 @@ function FadeIn({
 }
 
 const Events = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  // methods
+
+  const handleLearnMore = (id: string) => {
+    navigate(`/event-details/${id}`);
+  };
   return (
     <div className="py-20 px-6 bg-[#fafafa] overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -93,8 +99,8 @@ const Events = () => {
               >
                 <NimaEventCard
                   title={event.title}
-                  speaker={event.speaker}
-                  speakerTitle={event.speakerTitle}
+                  // speaker={event.speaker}
+                  // speakerTitle={event.speakerTitle}
                   timeRange={event.timeRange}
                   timeNote={event.timeNote}
                   venue={event.venue}
@@ -105,7 +111,7 @@ const Events = () => {
                   year={event.year}
                   image={event.image}
                   onRegister={() => console.log("Register:", event.title)}
-                  onFindMore={() => console.log("Find more:", event.title)}
+                  onFindMore={() => handleLearnMore(event.id)}
                 />
               </FadeIn>
             ))
@@ -148,12 +154,20 @@ const Events = () => {
 
 export default Events;
 
+interface Speaker {
+  name: string;
+  title: string;
+  role: string;
+  specialty: string;
+  description: string;
+  image: string;
+}
+
 interface EventCardProps {
   image?: string;
   badge?: string;
   title: string;
-  speaker: string;
-  speakerTitle: string;
+  featuredSpeaker: Speaker[];
   timeRange: string;
   timeNote: string;
   venue: string;
@@ -171,8 +185,7 @@ export function NimaEventCard({
   image,
   badge = "SIGNATURE EVENT",
   title,
-  speaker,
-  speakerTitle,
+  featuredSpeaker = [],
   timeRange,
   timeNote,
   venue,
@@ -236,9 +249,21 @@ export function NimaEventCard({
           {/* Speaker */}
           <div className="flex items-start gap-2 text-sm text-gray-600">
             <User className="w-4 h-4 mt-0.5" />
+
             <div>
-              <span className="font-medium text-gray-800">{speaker}</span>
-              <p className="text-xs text-gray-500">{speakerTitle}</p>
+              {featuredSpeaker.length > 0 && (
+                <>
+                  <span className="font-medium text-gray-800">
+                    {featuredSpeaker[0].name}
+                  </span>
+                  {featuredSpeaker.length > 1 && (
+                    <p className="text-xs text-[#027027] mt-1 font-medium">
+                      +{featuredSpeaker.length - 1} more speaker
+                      {featuredSpeaker.length > 2 ? "s" : ""}
+                    </p>
+                  )}
+                </>
+              )}
             </div>
           </div>
 

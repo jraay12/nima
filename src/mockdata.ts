@@ -86,71 +86,57 @@ export const boardMembers = [
 
 export const events = [
   {
+    id: "nima-annual-meeting-2026",
     title: "NIMA Annual Meeting 2026",
     badge: "SIGNATURE EVENT",
-    speaker: "Stavros Anthony",
-    speakerTitle: "Nevada Lieutenant Governor (Guest Speaker)",
+
+    featuredSpeaker: [
+      {
+        name: "Stavros Anthony",
+        title: "Nevada Lieutenant Governor",
+        role: "Keynote Speaker",
+        specialty: "Government Leadership",
+        description:
+          "Opening keynote speaker discussing leadership and healthcare collaboration.",
+        image:
+          "",
+      },
+      {
+        name: "Dr. Sarah Ahmed",
+        title: "Chairman of the Board",
+        role: "Panel Speaker",
+        specialty: "Physical Medicine & Rehabilitation",
+        description:
+          "Discussing physician leadership, innovation, and community healthcare initiatives.",
+        image:
+          "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80",
+      },
+      {
+        name: "Dr. Michael Rahimi",
+        title: "Internal Medicine Specialist",
+        role: "Guest Speaker",
+        specialty: "Internal Medicine",
+        description:
+          "Sharing insights on preventive care and the future of patient-centered healthcare.",
+        image:
+          "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+      },
+    ],
+
     timeRange: "5:30 PM – 6:00 PM",
     timeNote: "Opening keynote and networking session",
+
     venue: "Red Rock Country Club",
     address: "2250 Red Springs Dr",
     city: "Las Vegas, NV 89135",
+
     image:
       "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+
     day: 20,
     month: "MAY",
     year: 2026,
+    event_notes: "A short fundraising event for the speaker will take place from 5:30 PM to 6:00 PM.",
     icon: Mic,
-  },
-  {
-    title: "NIMA Medical Innovation Forum",
-    badge: "PROFESSIONAL FORUM",
-    speaker: "Dr. Reza Farhadi",
-    speakerTitle: "Chief of Neurology, UCLA Health",
-    timeRange: "2:00 PM – 4:30 PM",
-    timeNote: "Panel discussion on modern clinical advancements",
-    venue: "Las Vegas Convention Center",
-    address: "3150 Paradise Rd",
-    city: "Las Vegas, NV 89109",
-    image:
-      "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=1200&q=80",
-    day: 12,
-    month: "JUN",
-    year: 2026,
-    icon: BadgeCheck,
-  },
-  {
-    title: "Community Health & Outreach Day",
-    badge: "COMMUNITY SERVICE",
-    speaker: "Dr. Leila Hosseini",
-    speakerTitle: "Cardiology Consultant",
-    timeRange: "9:00 AM – 1:00 PM",
-    timeNote: "Free screenings and public health education",
-    venue: "Sunrise Hospital",
-    address: "3186 S Maryland Pkwy",
-    city: "Las Vegas, NV 89109",
-    image:
-      "",
-    day: 5,
-    month: "APR",
-    year: 2026,
-    icon: Users,
-  },
-  {
-    title: "Physician Networking & Gala Night",
-    badge: "NETWORKING EVENT",
-    speaker: "Dr. Michael Rahimi",
-    speakerTitle: "Internal Medicine Specialist",
-    timeRange: "7:00 PM – 11:00 PM",
-    timeNote: "Formal dinner and professional networking",
-    venue: "Wynn Las Vegas",
-    address: "3131 Las Vegas Blvd S",
-    city: "Las Vegas, NV 89109",
-    image:
-      "",
-    day: 28,
-    month: "SEP",
-    year: 2026,
-    icon: Calendar,
   },
 ];
