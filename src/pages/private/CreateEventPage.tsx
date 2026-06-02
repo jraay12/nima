@@ -1,25 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Breadcrumb from "../../component/BreadCrumb";
 import {
   CalendarDays,
   Clock,
   MapPin,
-  Image as ImageIcon,
   Plus,
   Trash2,
   User,
   ChevronDown,
-  Save,
   Globe,
   AlertCircle,
-  CheckCircle2,
   FileText,
   Tag,
+  Building2,
 } from "lucide-react";
+import { useCreateEvent } from "../../features/events/events.hook";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,15 +27,17 @@ type Speaker = {
   role: string;
   specialty: string;
   description: string;
-  image: string;
+  image?: File | null;
+};
+
+type Sponsor = {
+  name: string;
+  link: string;
 };
 
 type EventFormValues = {
   title: string;
   badge: string;
-  day: string;
-  month: string;
-  year: string;
   start_time: string;
   end_time: string;
   timeNote: string;
@@ -46,9 +46,10 @@ type EventFormValues = {
   city: string;
   image: File | null;
   event_notes: string;
-  zipCode: number
-  state: string
+  zipCode: number;
+  state: string;
   featuredSpeaker: Speaker[];
+  sponsors: Sponsor[];
 };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -62,21 +63,6 @@ const BADGE_OPTIONS = [
   "SEMINAR",
   "FUNDRAISER",
   "OTHER",
-];
-
-const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC",
 ];
 
 const SPEAKER_ROLES = [
@@ -93,9 +79,12 @@ const EMPTY_SPEAKER: Speaker = {
   role: "",
   specialty: "",
   description: "",
-  image: "",
 };
 
+const EMPTY_SPONSOR: Sponsor = {
+  link: "",
+  name: "",
+};
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function FieldError({ message }: { message?: string }) {
@@ -163,29 +152,29 @@ const selectCls = inputCls + " appearance-none cursor-pointer pr-8";
 
 const CreateEventPage = () => {
   const navigate = useNavigate();
-  const [submitType, setSubmitType] = useState<"draft" | "publish" | null>(
-    null,
-  );
+
+  // React Query
+  const createEventMutation = useCreateEvent();
   const [eventDate, setEventDate] = useState<Date | null>(null);
-  const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  // Per-speaker image previews keyed by field index
+  const [speakerPreviews, setSpeakerPreviews] = useState<
+    Record<number, string>
+  >({});
 
   const {
     register,
     control,
     handleSubmit,
-    watch,
+    setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
     defaultValues: {
       title: "",
       badge: "",
-      day: "",
-      month: "",
-      year: new Date().getFullYear().toString(),
       start_time: "",
       end_time: "",
-      timeNote: "",
       venue: "",
       address: "",
       state: "",
@@ -194,6 +183,7 @@ const CreateEventPage = () => {
       image: null,
       event_notes: "",
       featuredSpeaker: [],
+      sponsors: [],
     },
   });
 
@@ -202,56 +192,101 @@ const CreateEventPage = () => {
     name: "featuredSpeaker",
   });
 
-  const imageFile = watch("image");
+  const {
+    fields: sponsorFields,
+    append: sponsorAppend,
+    remove: sponsorRemove,
+  } = useFieldArray({
+    control,
+    name: "sponsors",
+  });
+
+  // Clean up speaker preview when a speaker is removed
+  const handleRemoveSpeaker = (index: number) => {
+    remove(index);
+    setSpeakerPreviews((prev) => {
+      const next: Record<number, string> = {};
+      Object.entries(prev).forEach(([key, val]) => {
+        const k = Number(key);
+        if (k < index) next[k] = val;
+        else if (k > index) next[k - 1] = val; // shift down
+      });
+      return next;
+    });
+  };
 
   const onSubmit = async (data: EventFormValues) => {
-    const id = data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
     const formData = new FormData();
 
-    formData.append("id", id);
+    // ─────────────────────────
+    // BASIC FIELDS
+    // ─────────────────────────
     formData.append("title", data.title);
     formData.append("badge", data.badge);
-    formData.append("day", String(Number(data.day)));
-    formData.append("month", data.month);
-    formData.append("year", data.year);
     formData.append("start_time", data.start_time);
     formData.append("end_time", data.end_time);
-    formData.append("timeNote", data.timeNote);
+    formData.append("event_date", eventDate?.toISOString() || "");
+
     formData.append("venue", data.venue);
     formData.append("address", data.address);
     formData.append("city", data.city);
-    formData.append("event_notes", data.event_notes);
-    formData.append("status", submitType === "publish" ? "published" : "draft");
+    formData.append("state", data.state);
+    formData.append("zipcode", String(data.zipCode));
+    formData.append("event_notes", data.event_notes || "");
 
+    // ─────────────────────────
+    // EVENT IMAGE
+    // ─────────────────────────
     if (data.image) {
-      formData.append("image", data.image);
+      formData.append("event_image", data.image);
     }
 
-    formData.append("featuredSpeaker", JSON.stringify(data.featuredSpeaker));
-  };
+    // ─────────────────────────
+    // SPEAKERS (JSON WITHOUT FILES)
+    // ─────────────────────────
+    const speakersPayload = data.featuredSpeaker.map((s) => ({
+      fullname: s.name,
+      role: s.role,
+      title: s.title,
+      speciality: s.specialty,
+      description: s.description,
+    }));
 
-  if (submitted) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center">
-          <CheckCircle2 className="w-7 h-7 text-[#027027]" />
-        </div>
-        <p className="text-gray-900 font-bold text-lg">
-          Event {submitType === "publish" ? "published" : "saved as draft"}!
-        </p>
-        <p className="text-sm text-gray-400">Redirecting to events…</p>
-      </div>
-    );
-  }
+    formData.append("featureSpeakers", JSON.stringify(speakersPayload));
+
+    // ─────────────────────────
+    // SPEAKER IMAGES (INDEXED FILES)
+    // ─────────────────────────
+    data.featuredSpeaker.forEach((speaker, index) => {
+      if (speaker.image) {
+        formData.append(`speaker_images_${index}`, speaker.image);
+      }
+    });
+
+    // ─────────────────────────
+    // SPONSOR PAYLOAD
+    // ─────────────────────────
+    const sponsorPayload = data.sponsors.map((s: Sponsor) => ({
+      name: s.name,
+      link: s.link,
+    }));
+
+    formData.append("sponsors", JSON.stringify(sponsorPayload));
+
+    createEventMutation.mutate(formData, {
+      onSuccess: () => {
+        reset();
+
+        setEventDate(null);
+        setPreview(null);
+        setSpeakerPreviews({});
+        navigate("/event");
+      },
+    });
+  };
 
   return (
     <div className=" mx-auto  pb-20">
-      
-
       <div className="mt-4 mb-8 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -263,7 +298,7 @@ const CreateEventPage = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-6">
           {/* ── Section 1: Basic Info ── */}
           <div className="bg-white border border-gray-100 rounded-2xl p-6">
@@ -361,14 +396,16 @@ const CreateEventPage = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    {...register("image", {
-                      required: "Cover image is required",
-                      onChange: (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setPreview(URL.createObjectURL(file));
-                      },
-                    })}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      setValue("image", file, {
+                        shouldValidate: true,
+                      });
+
+                      setPreview(URL.createObjectURL(file));
+                    }}
                   />
                 </label>
 
@@ -511,10 +548,6 @@ const CreateEventPage = () => {
                   <input
                     {...register("zipCode", {
                       required: "ZIP code is required",
-                      pattern: {
-                        value: /^\d{5}(-\d{4})?$/,
-                        message: "Invalid ZIP code",
-                      },
                     })}
                     placeholder="89052"
                     className={inputCls}
@@ -568,7 +601,7 @@ const CreateEventPage = () => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => remove(index)}
+                      onClick={() => handleRemoveSpeaker(index)}
                       className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 transition-colors font-medium"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -576,17 +609,71 @@ const CreateEventPage = () => {
                     </button>
                   </div>
 
+                  {/* Speaker Photo — sits above the grid, left-aligned */}
+                  <div className="mb-4">
+                    <p className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                      Speaker Photo
+                    </p>
+                    <label
+                      htmlFor={`speaker-photo-${index}`}
+                      className="relative flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 border-dashed border-gray-300 cursor-pointer overflow-hidden hover:border-[#014d1a] transition group"
+                    >
+                      {/* Preview */}
+                      {speakerPreviews[index] ? (
+                        <img
+                          src={speakerPreviews[index]}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        /* Placeholder icon */
+                        <User className="w-8 h-8 text-gray-300" />
+                      )}
+
+                      {/* Dark overlay on hover / when image exists */}
+                      <div
+                        className={`absolute inset-0 flex flex-col items-center justify-center transition rounded-full
+                          ${
+                            speakerPreviews[index]
+                              ? "bg-black/30 group-hover:bg-black/50"
+                              : "bg-transparent group-hover:bg-black/5"
+                          }`}
+                      >
+                        {speakerPreviews[index] && (
+                          <p className="text-white text-[10px] font-semibold text-center leading-tight px-1 opacity-0 group-hover:opacity-100 transition">
+                            Change
+                          </p>
+                        )}
+                      </div>
+
+                      <input
+                        id={`speaker-photo-${index}`}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setValue(`featuredSpeaker.${index}.image`, file);
+                          setSpeakerPreviews((prev) => ({
+                            ...prev,
+                            [index]: URL.createObjectURL(file),
+                          }));
+                        }}
+                      />
+                    </label>
+                    <p className="text-[10px] text-gray-400 mt-1.5">
+                      PNG, JPG, WEBP
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Name */}
                     <InputField
                       label="Full Name"
-                      required
                       error={errors.featuredSpeaker?.[index]?.name?.message}
                     >
                       <input
-                        {...register(`featuredSpeaker.${index}.name`, {
-                          required: "Speaker name is required",
-                        })}
+                        {...register(`featuredSpeaker.${index}.name`)}
                         placeholder="Dr. Jennifer Lee"
                         className={inputCls}
                       />
@@ -595,14 +682,11 @@ const CreateEventPage = () => {
                     {/* Role */}
                     <InputField
                       label="Role"
-                      required
                       error={errors.featuredSpeaker?.[index]?.role?.message}
                     >
                       <div className="relative">
                         <select
-                          {...register(`featuredSpeaker.${index}.role`, {
-                            required: "Role is required",
-                          })}
+                          {...register(`featuredSpeaker.${index}.role`)}
                           className={selectCls}
                         >
                           <option value="">Select role…</option>
@@ -642,23 +726,6 @@ const CreateEventPage = () => {
                       />
                     </InputField>
 
-                    {/* Image URL */}
-                    <InputField
-                      label="Photo URL"
-                      error={errors.featuredSpeaker?.[index]?.image?.message}
-                    >
-                      <input
-                        {...register(`featuredSpeaker.${index}.image`, {
-                          pattern: {
-                            value: /^(https?:\/\/).+/,
-                            message: "Must be a valid URL",
-                          },
-                        })}
-                        placeholder="https://…"
-                        className={inputCls}
-                      />
-                    </InputField>
-
                     {/* Description – full width */}
                     <div className="sm:col-span-2">
                       <InputField
@@ -692,8 +759,76 @@ const CreateEventPage = () => {
             </div>
           </div>
 
+          {/* ── Section 5: Sponsors ── */}
+          <div className="bg-white border border-gray-100 rounded-2xl p-6">
+            <SectionHeader
+              icon={Building2}
+              title="Sponsors"
+              subtitle="Add event sponsors and their website links"
+            />
+
+            <div className="space-y-4">
+              {sponsorFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="border border-gray-100 rounded-xl p-4 bg-[#fafafa]"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wide">
+                      Sponsor {index + 1}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => sponsorRemove(index)}
+                      className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 transition-colors font-medium"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Remove
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField
+                      label="Sponsor Name"
+                      error={errors.sponsors?.[index]?.name?.message}
+                    >
+                      <input
+                        {...register(`sponsors.${index}.name`)}
+                        placeholder="Microsoft"
+                        className={inputCls}
+                      />
+                    </InputField>
+
+                    <InputField
+                      label="Website Link"
+                      error={errors.sponsors?.[index]?.link?.message}
+                    >
+                      <input
+                        {...register(`sponsors.${index}.link`)}
+                        placeholder="https://microsoft.com"
+                        className={inputCls}
+                      />
+                    </InputField>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => sponsorAppend(EMPTY_SPONSOR)}
+                className="w-full flex items-center justify-center gap-2 border border-dashed border-gray-300 text-gray-500
+      text-sm font-medium py-3 rounded-xl hover:border-[#027027] hover:text-[#027027]
+      transition-all duration-200 hover:bg-green-50/50"
+              >
+                <Plus className="w-4 h-4" />
+                Add Sponsor
+              </button>
+            </div>
+          </div>
+
           {/* ── Action bar ── */}
-          <div className="bg-white border border-gray-100 rounded-2xl px-6 py-4 flex items-center justify-between gap-4 flex-wrap sticky bottom-16 shadow-[0_4px_24px_rgba(0,0,0,0.07)]">
+          <div className="bg-white border border-gray-100 rounded-2xl px-6 py-4 flex items-center justify-between gap-4 flex-wrap  shadow-[0_4px_24px_rgba(0,0,0,0.07)]">
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -703,24 +838,10 @@ const CreateEventPage = () => {
             </button>
 
             <div className="flex items-center gap-3">
-              {/* Save as Draft */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                onClick={() => setSubmitType("draft")}
-                className="inline-flex items-center gap-2 border border-gray-200 bg-white text-gray-700
-                  text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200
-                  hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                Save as Draft
-              </button>
-
               {/* Publish */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                onClick={() => setSubmitType("publish")}
                 className="inline-flex items-center gap-2 bg-[#027027] text-white
                   text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200
                   hover:bg-[#025f22] active:scale-[0.98] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#027027]/30"
