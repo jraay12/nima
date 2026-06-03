@@ -10,8 +10,12 @@ export const fetchMember = async () => {
   return response.data.data;
 };
 
-
 export const fetchMemberById = async (id: string) => {
   const response = await api.get(`/members/${id}`);
+  return response.data.data;
+};
+
+export const fetchBoardMember = async () => {
+  const response = await api.get("/members/board");
   return response.data.data;
 };

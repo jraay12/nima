@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createMember, fetchMember, fetchMemberById } from "./member.api";
+import { createMember, fetchBoardMember, fetchMember, fetchMemberById } from "./member.api";
 
 export const useCreateMember = () => {
   return useMutation({
@@ -19,5 +19,13 @@ export const useFetchMembersById = (id: string) => {
   return useQuery({
     queryFn: () => fetchMemberById(id),
     queryKey: ["members", id],
+  });
+};
+
+
+export const useFetchBoardMembers = () => {
+  return useQuery({
+    queryFn: fetchBoardMember,
+    queryKey: ["board-members"],
   });
 };
