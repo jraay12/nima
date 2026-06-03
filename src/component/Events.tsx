@@ -6,10 +6,12 @@ import {
   ExternalLink,
   BadgeCheck,
   Calendar,
+  Building2,
 } from "lucide-react";
-import { events } from "../mockdata";
 import { useNavigate } from "react-router";
-
+import { useFetchEvents } from "../features/events/events.hook";
+import { convertTo12Hours } from "../lib/convertTimeTo12";
+import type { FeatureSpeaker, Sponsor } from "../types";
 function FadeIn({
   children,
   delay = 0,
@@ -65,6 +67,11 @@ function FadeIn({
 const Events = () => {
   const navigate = useNavigate();
 
+  // react query
+  const { data: events } = useFetchEvents();
+
+  const filtered = events?.events.filter((event) => new Date(event.event_date) > new Date())
+
   // methods
 
   const handleLearnMore = (id: string) => {
@@ -90,31 +97,39 @@ const Events = () => {
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 gap-8">
-          {events && events.length > 0 ? (
-            events.slice(0, 3).map((event, i) => (
-              <FadeIn
-                key={event.title}
-                direction={i % 2 === 0 ? "left" : "right"}
-                delay={i * 100}
-              >
-                <NimaEventCard
-                  title={event.title}
-                  // speaker={event.speaker}
-                  // speakerTitle={event.speakerTitle}
-                  timeRange={event.timeRange}
-                  timeNote={event.timeNote}
-                  venue={event.venue}
-                  address={event.address}
-                  city={event.city}
-                  day={event.day}
-                  month={event.month}
-                  year={event.year}
-                  image={event.image}
-                  onRegister={() => console.log("Register:", event.title)}
-                  onFindMore={() => handleLearnMore(event.id)}
-                />
-              </FadeIn>
-            ))
+          {filtered && filtered.length > 0 ? (
+            filtered.slice(0, 3).map((event, i) => {
+              const date = new Date(event.event_date);
+              const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                `${event.venue}, ${event.address}, ${event.city}`,
+              )}`;
+              return (
+                <FadeIn
+                  key={event.id}
+                  direction={i % 2 === 0 ? "left" : "right"}
+                  delay={i * 100}
+                >
+                  <NimaEventCard
+                    title={event.title}
+                    timeRange={`${convertTo12Hours(event.start_time)} - ${convertTo12Hours(event.end_time)}`}
+                    venue={event.venue}
+                    address={event.address}
+                    city={event.city}
+                    day={date.getDate().toString()}
+                    month={date
+                      .toLocaleString("en-US", { month: "short" })
+                      .toUpperCase()}
+                    year={date.getFullYear().toString()}
+                    image={`${import.meta.env.VITE_IMAGE_PREFIX}${event.image_path}`}
+                    onRegister={() => console.log("Register:", event.title)}
+                    onFindMore={() => handleLearnMore(event.id)}
+                    mapUrl={googleMapsUrl}
+                    featuredSpeaker={event.featureSpeakers}
+                    sponsor={event.sponsors}
+                  />
+                </FadeIn>
+              );
+            })
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-gray-300 rounded-2xl bg-white">
               <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-4">
@@ -154,20 +169,12 @@ const Events = () => {
 
 export default Events;
 
-interface Speaker {
-  name: string;
-  title: string;
-  role: string;
-  specialty: string;
-  description: string;
-  image: string;
-}
-
 interface EventCardProps {
   image?: string;
   badge?: string;
   title: string;
-  featuredSpeaker: Speaker[];
+  featuredSpeaker: FeatureSpeaker[];
+  sponsor: Sponsor[];
   timeRange: string;
   timeNote: string;
   venue: string;
@@ -176,9 +183,9 @@ interface EventCardProps {
   mapUrl?: string;
   onRegister?: () => void;
   onFindMore?: () => void;
-  day: number;
+  day: string;
   month: string;
-  year: number;
+  year: string;
 }
 
 export function NimaEventCard({
@@ -186,6 +193,7 @@ export function NimaEventCard({
   badge = "SIGNATURE EVENT",
   title,
   featuredSpeaker = [],
+  sponsor = [],
   timeRange,
   timeNote,
   venue,
@@ -205,7 +213,7 @@ export function NimaEventCard({
 
       <div className="grid grid-cols-1 md:grid-cols-3">
         {/* IMAGE SECTION */}
-        <div className="relative md:col-span-1 h-64 md:h-full bg-gray-100 overflow-hidden">
+        <div className="relative md:col-span-1 h-64 md:min-h-[280px] md:max-h-[320px] bg-gray-100 overflow-hidden">
           {image ? (
             <img
               src={image}
@@ -222,74 +230,127 @@ export function NimaEventCard({
           {/* Date overlay */}
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg text-center shadow-sm">
             <p className="text-xl font-bold text-gray-900 leading-none">
-              {day}
+              {day || "--"}
             </p>
+
             <p className="text-xs font-semibold text-[#027027] tracking-widest">
-              {month}
+              {month || "---"}
             </p>
-            <p className="text-[10px] text-gray-500">{year}</p>
+
+            <p className="text-[10px] text-gray-500">{year || "----"}</p>
           </div>
         </div>
 
         {/* CONTENT */}
         <div className="md:col-span-2 p-6 flex flex-col gap-4">
           {/* Badge */}
-          <div className="flex items-center gap-2">
-            <BadgeCheck className="w-4 h-4 text-[#027027]" />
-            <span className="text-xs font-semibold text-[#027027] uppercase tracking-widest">
-              {badge}
-            </span>
-          </div>
+          <span className="text-xs font-semibold text-[#027027] uppercase tracking-widest">
+            {badge || "EVENT"}
+          </span>
 
           {/* Title */}
           <h2 className="text-xl font-bold text-gray-900 leading-snug">
-            {title}
+            {title || "Untitled Event"}
           </h2>
 
           {/* Speaker */}
           <div className="flex items-start gap-2 text-sm text-gray-600">
-            <User className="w-4 h-4 mt-0.5" />
+            <User className="w-4 h-4 mt-0.5 shrink-0" />
 
             <div>
-              {featuredSpeaker.length > 0 && (
+              {featuredSpeaker.length > 0 ? (
                 <>
-                  <span className="font-medium text-gray-800">
-                    {featuredSpeaker[0].name}
-                  </span>
-                  {featuredSpeaker.length > 1 && (
-                    <p className="text-xs text-[#027027] mt-1 font-medium">
-                      +{featuredSpeaker.length - 1} more speaker
-                      {featuredSpeaker.length > 2 ? "s" : ""}
-                    </p>
+                  <div className="space-y-1">
+                    {featuredSpeaker.slice(0, 2).map((speaker) => (
+                      <p key={speaker.id} className="font-medium text-gray-800">
+                        {speaker.fullname}
+                      </p>
+                    ))}
+                  </div>
+
+                  {featuredSpeaker.length > 2 && (
+                    <span className="inline-flex mt-2 px-2.5 py-1 rounded-full bg-green-50 text-[#027027] text-xs font-medium">
+                      +{featuredSpeaker.length - 2} more speaker
+                      {featuredSpeaker.length - 2 > 1 ? "s" : ""}
+                    </span>
                   )}
                 </>
+              ) : (
+                <span className="text-gray-400 italic">
+                  Speakers to be announced
+                </span>
               )}
             </div>
           </div>
 
-          {/* Time */}
+          {/* Sponsors */}
+          <div className="flex items-start gap-2 text-sm text-gray-600">
+            <Building2 className="w-4 h-4 mt-0.5 shrink-0" />
+
+            <div className="flex-1">
+              {sponsor.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {sponsor.slice(0, 3).map((item) => (
+                    <a
+                      key={item.id}
+                      href={item.link || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 border border-green-100 text-[#027027] text-xs font-medium hover:bg-green-100 transition-colors"
+                    >
+                      <Building2 className="w-3 h-3" />
+                      {item.name || "Unnamed Sponsor"}
+
+                      {item.link && <ExternalLink className="w-3 h-3" />}
+                    </a>
+                  ))}
+
+                  {sponsor.length > 3 && (
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                      +{sponsor.length - 3} more sponsor
+                      {sponsor.length - 3 > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-gray-400 italic">
+                  Sponsors to be announced
+                </span>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 shrink-0" />
+
             <span>
-              <span className="text-gray-800 font-medium">{timeRange}</span> —{" "}
-              {timeNote}
+              <span className="text-gray-800 font-medium">
+                {timeRange || "Time TBA"}
+              </span>
             </span>
           </div>
 
           {/* Location */}
           <div className="flex items-start gap-2 text-sm text-gray-600">
-            <MapPin className="w-4 h-4 mt-0.5" />
+            <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+
             <div>
               <p>
-                {venue}, {address}, {city}
+                {[venue, address, city].filter(Boolean).join(", ") ||
+                  "Venue to be announced"}
               </p>
-              <a
-                href={mapUrl}
-                className="inline-flex items-center gap-1 text-[#027027] text-xs mt-1 hover:underline"
-              >
-                View on map
-                <ExternalLink className="w-3 h-3" />
-              </a>
+
+              {mapUrl !== "#" && (
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[#027027] text-xs mt-1 hover:underline"
+                >
+                  View on map
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
             </div>
           </div>
 
