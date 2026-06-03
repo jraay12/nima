@@ -18,6 +18,8 @@ import { PrivateRoutes } from "./routes/PrivateRoutes";
 import { PublicRoutes } from "./routes/PublicRoutes";
 import PrivateEventDetailPage from "./pages/private/PrivateEventDetailsPage";
 import CreateMemberPage from "./pages/private/CreateMemberPage";
+import MemberPagePublic from "./pages/MemberPage";
+import MemberDetails from "./pages/MemberDetails";
 
 function App() {
   const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ function App() {
           <Route path="/events" element={<EventPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/event-details/:id" element={<EventDetailsPage />} />
+          <Route path="/members" element={<MemberPagePublic />} />
+          <Route path="/members/:id" element={<MemberDetails />} />
         </Route>
         <Route
           path="/administrator/login"

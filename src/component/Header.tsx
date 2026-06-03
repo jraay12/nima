@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 
 const NAV_LINKS = [
-  { label: "Members", href: "#members" },
+  { label: "Members", href: "/members" },
   { label: "Events", href: "/events" },
   { label: "Community", href: "/community" },
   { label: "Contact Us", href: "/contact" },
