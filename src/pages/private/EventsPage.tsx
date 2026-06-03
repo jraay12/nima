@@ -6,14 +6,13 @@ import {
   Clock,
   Plus,
   Search,
-  Filter,
-  BadgeCheck,
   ChevronRight,
-  Mic,
   Users,
-  Star,
 } from "lucide-react";
-import { events } from "../../mockdata";
+import { useFetchEvents } from "../../features/events/events.hook";
+import type { Event, GetEventsResponse } from "../../types";
+import { convertTo12Hours } from "../../lib/convertTimeTo12";
+
 // Badge color map
 const badgeStyles: Record<string, { bg: string; text: string; dot: string }> = {
   "SIGNATURE EVENT": {
@@ -39,24 +38,6 @@ function getBadgeStyle(badge: string) {
   return badgeStyles[badge?.toUpperCase()] ?? badgeStyles.DEFAULT;
 }
 
-function isPastEvent(month: string, day: number, year: number) {
-  const months: Record<string, number> = {
-    JAN: 0,
-    FEB: 1,
-    MAR: 2,
-    APR: 3,
-    MAY: 4,
-    JUN: 5,
-    JUL: 6,
-    AUG: 7,
-    SEP: 8,
-    OCT: 9,
-    NOV: 10,
-    DEC: 11,
-  };
-  return new Date(year, months[month] ?? 0, day) < new Date();
-}
-
 const FILTERS = [
   "All",
   "Upcoming",
@@ -70,14 +51,16 @@ const EventsPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-
-  const filtered = events.filter((e: any) => {
+  const { data: events } = useFetchEvents();
+  console.log(events)
+  let past: boolean;
+  const filtered = events?.events?.filter((e: Event) => {
     const matchSearch =
       e.title.toLowerCase().includes(search.toLowerCase()) ||
       e.venue.toLowerCase().includes(search.toLowerCase()) ||
       e.city.toLowerCase().includes(search.toLowerCase());
 
-    const past = isPastEvent(e.month, e.day, e.year);
+    past = new Date(e.event_date) < new Date();
 
     const matchFilter =
       activeFilter === "All" ||
@@ -95,12 +78,9 @@ const EventsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Events</h1>
           <p className="text-sm text-gray-500">
-            {events.length} event{events.length !== 1 ? "s" : ""} total ·{" "}
-            {
-              events.filter((e: any) => !isPastEvent(e.month, e.day, e.year))
-                .length
-            }{" "}
-            upcoming
+            {events?.events.length} event
+            {events?.events.length !== 1 ? "s" : ""} total ·{" "}
+            {events?.events.filter((e: any) => !past).length} upcoming
           </p>
         </div>
         <button
@@ -149,13 +129,14 @@ const EventsPage = () => {
       {/* Results count */}
       {search && (
         <p className="text-xs text-gray-400 mb-4">
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &quot;
+          {filtered?.length} result{filtered?.length !== 1 ? "s" : ""} for
+          &quot;
           {search}&quot;
         </p>
       )}
 
       {/* Events grid */}
-      {filtered.length === 0 ? (
+      {filtered?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
             <CalendarDays className="w-6 h-6 text-gray-400" />
@@ -167,15 +148,29 @@ const EventsPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((event: any) => {
-            const past = isPastEvent(event.month, event.day, event.year);
+          {filtered?.map((event: Event) => {
+            const [hours, minutes] = event.end_time.split(":").map(Number);
+            const eventEnd = new Date(event.event_date);
+            eventEnd.setHours(hours, minutes, 0, 0);
+
+            const past = eventEnd < new Date();
             const badge = getBadgeStyle(event.badge);
-            const speakerCount = event.featuredSpeaker?.length ?? 0;
+            const speakerCount = event.featureSpeakers?.length ?? 0;
+
+            const date = new Date(event.event_date);
+
+            const day = date.getDate();
+
+            const month = date
+              .toLocaleString("en-US", {
+                month: "short",
+              })
+              .toUpperCase();
 
             return (
               <div
                 key={event.id}
-                onClick={() => navigate(`/events/${event.id}`)}
+                onClick={() => navigate(`/event/details/${event.id}`)}
                 className={`group bg-white border border-gray-100 rounded-xl overflow-hidden cursor-pointer
   transition-all duration-200 ease-out
   hover:-translate-y-0.5 hover:shadow-md
@@ -183,9 +178,9 @@ const EventsPage = () => {
               >
                 {/* Image */}
                 <div className="relative h-36 bg-gradient-to-br from-[#f0f3f6] to-[#ebf5ee] overflow-hidden">
-                  {event.image ? (
+                  {event?.image_path ? (
                     <img
-                      src={event.image}
+                      src={`${import.meta.env.VITE_IMAGE_PREFIX}${event.image_path}`}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -204,10 +199,10 @@ const EventsPage = () => {
                   {/* Date badge */}
                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-center min-w-[42px]">
                     <p className="text-base font-bold text-gray-900 leading-none">
-                      {event.day}
+                      {day}
                     </p>
                     <p className="text-[9px] font-bold text-[#027027] tracking-widest">
-                      {event.month}
+                      {month}
                     </p>
                   </div>
 
@@ -248,7 +243,9 @@ const EventsPage = () => {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span className="truncate">{event.timeRange}</span>
+                      <span className="truncate">
+                        {convertTo12Hours(event.start_time)} - {convertTo12Hours(event.end_time)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -264,7 +261,7 @@ const EventsPage = () => {
                     {speakerCount > 0 ? (
                       <div className="flex items-center gap-1.5">
                         <div className="flex -space-x-1.5">
-                          {event.featuredSpeaker
+                          {event.featureSpeakers
                             .slice(0, 3)
                             .map((s: any, i: any) => (
                               <div
@@ -272,9 +269,9 @@ const EventsPage = () => {
                                 className="w-6 h-6 rounded-full border-2 border-white bg-gradient-to-br from-[#ebf5ee] to-[#d2eedd] overflow-hidden shrink-0"
                                 style={{ zIndex: 3 - i }}
                               >
-                                {s.image ? (
+                                {s.image_path ? (
                                   <img
-                                    src={s.image}
+                                    src={`${import.meta.env.VITE_IMAGE_PREFIX}${s.image_path}`}
                                     alt={s.name}
                                     className="w-full h-full object-cover"
                                   />
@@ -291,7 +288,7 @@ const EventsPage = () => {
                         <span className="text-[11px] text-gray-400">
                           {speakerCount > 1
                             ? `+${speakerCount - 1} more`
-                            : event.featuredSpeaker[0]?.name}
+                            : event.featureSpeakers[0]?.fullname}
                         </span>
                       </div>
                     ) : (

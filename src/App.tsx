@@ -16,6 +16,7 @@ import CreateEventPage from "./pages/private/CreateEventPage";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { PrivateRoutes } from "./routes/PrivateRoutes";
 import { PublicRoutes } from "./routes/PublicRoutes";
+import PrivateEventDetailPage from "./pages/private/PrivateEventDetailsPage";
 
 function App() {
   const queryClient = new QueryClient();
@@ -49,6 +50,10 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/event" element={<EventsPage />} />
           <Route path="/member" element={<MembersPage />} />
+          <Route
+            path="/event/details/:id"
+            element={<PrivateEventDetailPage />}
+          />
           <Route path="/event/create" element={<CreateEventPage />} />
         </Route>
       </Routes>
