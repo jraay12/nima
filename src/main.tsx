@@ -6,7 +6,7 @@ import { HashRouter } from "react-router";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <HashRouter basename="/nima">
+    <HashRouter>
       <App />
     </HashRouter>
   </StrictMode>,
