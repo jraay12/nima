@@ -12,8 +12,6 @@ import NimaFooter from "../component/Footer";
 ----------------------------- */
 function FadeIn({
   children,
-  delay = 0,
-  direction = "up",
 }: {
   children: ReactNode;
   delay?: number;
@@ -139,7 +137,7 @@ const EventPage = () => {
           {/* EVENTS */}
           <div className="grid grid-cols-1 gap-8">
             {paginatedEvents.length > 0 ? (
-              paginatedEvents.map((event, i) => {
+              paginatedEvents.map((event) => {
                 const date = new Date(event.event_date);
 
                 const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(

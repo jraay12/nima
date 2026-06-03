@@ -160,7 +160,6 @@ function ToolbarDivider() {
 // ─── Rich Text Editor ─────────────────────────────────────────────────────────
 
 function RichTextEditor({
-  value,
   onChange,
 }: {
   value: string;

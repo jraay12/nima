@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { useFetchEvents } from "../../features/events/events.hook";
-import type { Event, GetEventsResponse } from "../../types";
+import type { Event } from "../../types";
 import { convertTo12Hours } from "../../lib/convertTimeTo12";
 
 // Badge color map
@@ -80,7 +80,7 @@ const EventsPage = () => {
           <p className="text-sm text-gray-500">
             {events?.events.length} event
             {events?.events.length !== 1 ? "s" : ""} total ·{" "}
-            {events?.events.filter((e: any) => !past).length} upcoming
+            {events?.events.filter(() => !past).length} upcoming
           </p>
         </div>
         <button

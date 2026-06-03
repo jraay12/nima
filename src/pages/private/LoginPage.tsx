@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, BadgeCheck } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useLogin } from "../../features/user/user.hooks";
 
 // Lightweight animated dot-grid background

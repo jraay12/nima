@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Building2,
 } from "lucide-react";
-import { useFetchEventsById } from "../features/events/events.hook";
 import { useFetchMembersById } from "../features/members/member.hook";
 
 // ─── Types (re-use from MemberList or import from shared types file) ──────────
@@ -89,17 +88,7 @@ function getInitials(name: string): string {
   return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
 
-type MemberDetailsProps = {
-  /**
-   * Pass member data directly (e.g. from React Query).
-   * If omitted, the component renders a skeleton/loading state.
-   */
-  member?: Member;
-  isLoading?: boolean;
-  imageBaseUrl?: string;
-};
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
@@ -185,9 +174,7 @@ function Skeleton() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const MemberDetails = ({
-  imageBaseUrl,
-}: MemberDetailsProps) => {
+const MemberDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {data: member, isLoading} = useFetchMembersById(id!)

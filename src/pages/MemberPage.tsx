@@ -1,4 +1,3 @@
-import React from "react";
 import { useFetchMembers } from "../features/members/member.hook";
 import MemberList from "../component/MemberList";
 import NimaFooter from "../component/Footer";
