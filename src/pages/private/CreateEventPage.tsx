@@ -232,7 +232,7 @@ const CreateEventPage = () => {
     formData.append("city", data.city);
     formData.append("state", data.state);
     formData.append("zipcode", String(data.zipCode));
-    formData.append("event_notes", data.event_notes || "");
+    formData.append("notes", data.event_notes || "");
 
     // ─────────────────────────
     // EVENT IMAGE

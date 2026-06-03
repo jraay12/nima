@@ -528,13 +528,13 @@ export default function EventDetailPage() {
       fd.append("event_image", form.imageFile);
     }
 
-    // ✅ Send existing image_path per speaker so backend can fall back to it
     fd.append(
       "featureSpeakers",
       JSON.stringify(
-        form.featureSpeakers.map(
-          ({ imagePreview, imageFile, ...rest }) => rest,
-        ),
+        form.featureSpeakers.map(({ imagePreview, imageFile, ...rest }) => ({
+          ...rest,
+          image_path: rest.image_path || null, // keep existing path or null
+        })),
       ),
     );
 
@@ -548,7 +548,12 @@ export default function EventDetailPage() {
     fd.append("sponsors", JSON.stringify(form.sponsors));
 
     updateEventMutation.mutate(fd, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        setForm({
+          ...data.event,
+          imagePreview: undefined,
+          imageFile: undefined,
+        });
         setEditMode(false);
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
