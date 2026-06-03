@@ -8,7 +8,6 @@ import {
   ChevronRight,
   LayoutDashboard,
   LogOut,
-  Settings,
 } from "lucide-react";
 
 const navItems = [

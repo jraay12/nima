@@ -4,7 +4,6 @@ import {
   Clock,
   User,
   ExternalLink,
-  BadgeCheck,
   Calendar,
   Building2,
 } from "lucide-react";
@@ -195,7 +194,6 @@ export function NimaEventCard({
   featuredSpeaker = [],
   sponsor = [],
   timeRange,
-  timeNote,
   venue,
   address,
   city,

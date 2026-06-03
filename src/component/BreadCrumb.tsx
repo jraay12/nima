@@ -1,13 +1,8 @@
 import { ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
-type BreadcrumbProps = {
-  homeLabel?: string;
-};
 
-export default function Breadcrumb({
-  homeLabel = "Dashboard",
-}: BreadcrumbProps) {
+export default function Breadcrumb() {
   const location = useLocation();
 
   const pathnames = location.pathname.split("/").filter(Boolean);

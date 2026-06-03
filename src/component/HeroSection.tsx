@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
 import heroBg from "../assets/herosection.png"; // 👈 swap with your actual local asset path
 
-const STATS = [
-  { value: "2K+", label: "Members" },
-  { value: "50+", label: "Events/Year" },
-  { value: "10+", label: "Years Active" },
-];
 
 const HeroSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);

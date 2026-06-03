@@ -4,7 +4,6 @@ import {
   Users,
   Handshake,
   HeartHandshake,
-  BriefcaseMedicalIcon,
   Tag,
   TicketPercent,
   ArrowRight,

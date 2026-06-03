@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Mail,
@@ -307,8 +307,7 @@ function PublicMemberCard({
   imageBaseUrl?: string;
 }) {
   const navigate = useNavigate();
-  const [showBio, setShowBio] = useState(false);
-  const bioHtml = resolveBiography(member.biography);
+
 
   return (
     <div
