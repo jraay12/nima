@@ -235,7 +235,7 @@ function AdminMemberCard({
   onDelete?: (m: Member) => void;
 }) {
   const currentYear = new Date().getFullYear().toString();
-  const activeMember = currentYear === member.year;
+  const activeMember = currentYear <= member.year;
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
       <div className="flex items-start gap-4">

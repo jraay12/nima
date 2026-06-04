@@ -1,6 +1,6 @@
 export interface LoginInput {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface Sponsor {
@@ -54,4 +54,13 @@ export interface GetEventsResponse {
 
 export interface GetEventsResponseById {
   events: Event;
+}
+
+export interface Dashboard {
+  active: number;
+  archived: number;
+  totalEvents: number;
+  monthly: number[];
+  recent: { title: string; event_date: string; badge: string }[];
+  upcoming: { title: string; event_date: string; badge: string }[];
 }

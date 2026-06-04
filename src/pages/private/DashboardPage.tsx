@@ -21,70 +21,31 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import type { Dashboard } from "../../types";
+import { useDashboard } from "../../features/dashboard/dashboard.hook";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const MOCK: Record<string, {
-  active: number;
-  archived: number;
-  totalEvents: number;
-  monthly: number[];
-  recent: { name: string; date: string; type: string }[];
-  upcoming: { name: string; date: string; type: string }[];
-}> = {
-  "2026": {
-    active: 142, archived: 18, totalEvents: 7,
-    monthly: [12, 9, 15, 11, 18, 14, 0, 0, 0, 0, 0, 0],
-    recent: [
-      { name: "Annual General Meeting", date: "May 10, 2026", type: "Conference" },
-      { name: "Radiology Workshop", date: "Apr 3, 2026", type: "Workshop" },
-      { name: "Board Dinner", date: "Mar 15, 2026", type: "Social" },
-    ],
-    upcoming: [
-      { name: "Summer Symposium", date: "Jul 18, 2026", type: "Conference" },
-      { name: "CME Seminar Series", date: "Aug 5, 2026", type: "Seminar" },
-      { name: "Annual Gala", date: "Nov 22, 2026", type: "Social" },
-    ],
-  },
-  "2025": {
-    active: 128, archived: 22, totalEvents: 11,
-    monthly: [8, 11, 7, 13, 16, 10, 9, 12, 8, 14, 11, 9],
-    recent: [
-      { name: "Year-end Conference", date: "Dec 5, 2025", type: "Conference" },
-      { name: "Imaging Tech Summit", date: "Nov 14, 2025", type: "Seminar" },
-      { name: "Fall Workshop", date: "Oct 3, 2025", type: "Workshop" },
-    ],
-    upcoming: [],
-  },
-  "2024": {
-    active: 114, archived: 19, totalEvents: 10,
-    monthly: [6, 8, 9, 10, 14, 11, 8, 10, 7, 12, 9, 8],
-    recent: [
-      { name: "Holiday Mixer", date: "Dec 12, 2024", type: "Social" },
-      { name: "NV Medical Summit", date: "Oct 20, 2024", type: "Conference" },
-      { name: "Radiology Q3 Review", date: "Sep 8, 2024", type: "Seminar" },
-    ],
-    upcoming: [],
-  },
-  "2023": {
-    active: 97, archived: 15, totalEvents: 9,
-    monthly: [5, 6, 7, 9, 11, 8, 7, 9, 6, 10, 8, 7],
-    recent: [
-      { name: "End of Year Gala", date: "Dec 9, 2023", type: "Social" },
-      { name: "Tech & Imaging Expo", date: "Sep 22, 2023", type: "Conference" },
-      { name: "Summer CME", date: "Jul 14, 2023", type: "Seminar" },
-    ],
-    upcoming: [],
-  },
-};
-
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 const YEARS = ["2026", "2025", "2024", "2023"];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function totalAdded(monthly: number[]) {
-  return monthly.reduce((a, b) => a + b, 0);
+  return monthly?.reduce((a, b) => a + b, 0);
 }
 
 function eventDotColor(type: string) {
@@ -117,7 +78,9 @@ function StatCard({
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-3">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconColor}`}>
+        <div
+          className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconColor}`}
+        >
           <Icon className="w-4 h-4" />
         </div>
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -126,11 +89,15 @@ function StatCard({
       </div>
       <p className="text-3xl font-bold text-gray-900">{value}</p>
       {badge && (
-        <div className={`mt-2 inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full
-          ${badge.up ? "bg-green-50 text-green-700" : "bg-red-50 text-red-500"}`}>
-          {badge.up
-            ? <TrendingUp className="w-3 h-3" />
-            : <TrendingDown className="w-3 h-3" />}
+        <div
+          className={`mt-2 inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full
+          ${badge.up ? "bg-green-50 text-green-700" : "bg-red-50 text-red-500"}`}
+        >
+          {badge.up ? (
+            <TrendingUp className="w-3 h-3" />
+          ) : (
+            <TrendingDown className="w-3 h-3" />
+          )}
           {badge.text}
         </div>
       )}
@@ -142,17 +109,29 @@ function EventItem({
   event,
   variant,
 }: {
-  event: { name: string; date: string; type: string };
+  event: { title: string; event_date: string; badge: string };
   variant: "recent" | "upcoming";
 }) {
   return (
     <div className="flex items-start gap-3 py-3 border-b border-gray-50 last:border-0 last:pb-0">
-      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${eventDotColor(event.type)}`} />
+      <div
+        className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${eventDotColor(event.badge)}`}
+      />
       <div>
-        <p className="text-sm font-semibold text-gray-800">{event.name}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{event.date}</p>
-        <span className={`mt-1.5 inline-block text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${eventTagStyle(variant)}`}>
-          {event.type}
+        <p className="text-sm font-semibold text-gray-800">{event.title}</p>
+        <p className="text-xs text-gray-400 mt-0.5">
+          {event.event_date
+            ? new Date(event.event_date).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "No date"}
+        </p>
+        <span
+          className={`mt-1.5 inline-block text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${eventTagStyle(variant)}`}
+        >
+          {event.badge}
         </span>
       </div>
     </div>
@@ -176,21 +155,18 @@ function CustomBarTooltip({ active, payload, label }: any) {
 export default function DashboardPage() {
   const currentYear = new Date().getFullYear().toString();
   const [year, setYear] = useState(currentYear);
+  const { data: dashboard } = useDashboard();
 
-  const data = MOCK[year];
-  const prevData = MOCK[String(Number(year) - 1)];
-  const addedThis = totalAdded(data.monthly);
-  const addedPrev = prevData ? totalAdded(prevData.monthly) : null;
-  const diff = addedPrev !== null ? addedThis - addedPrev : null;
+  const addedThis = totalAdded(dashboard?.monthly!);
 
   const monthlyChartData = MONTHS.map((month, i) => ({
     month,
-    members: data.monthly[i],
+    members: dashboard?.monthly[i],
   }));
 
   const donutData = [
-    { name: "Active", value: data.active },
-    { name: "Archived", value: data.archived },
+    { name: "Active", value: dashboard?.active },
+    { name: "Archived", value: dashboard?.archived },
   ];
   const DONUT_COLORS = ["#027027", "#d1d5db"];
 
@@ -212,7 +188,9 @@ export default function DashboardPage() {
               focus:border-[#027027] focus:ring-2 focus:ring-[#027027]/10 hover:border-gray-300 transition-all"
           >
             {YEARS.map((y) => (
-              <option key={y} value={y}>{y}</option>
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -224,19 +202,19 @@ export default function DashboardPage() {
         <StatCard
           icon={Users}
           label="Active members"
-          value={data.active}
+          value={dashboard?.active!}
           iconColor="bg-[#ebf5ee] text-[#027027]"
         />
         <StatCard
           icon={Archive}
           label="Archived members"
-          value={data.archived}
+          value={dashboard?.archived!}
           iconColor="bg-amber-50 text-amber-500"
         />
         <StatCard
           icon={CalendarDays}
           label="Total events"
-          value={data.totalEvents}
+          value={dashboard?.totalEvents!}
           iconColor="bg-blue-50 text-blue-500"
         />
         <StatCard
@@ -244,11 +222,7 @@ export default function DashboardPage() {
           label="New this year"
           value={addedThis}
           iconColor="bg-pink-50 text-pink-500"
-          badge={
-            diff !== null
-              ? { text: `${diff >= 0 ? "+" : ""}${diff} vs ${Number(year) - 1}`, up: diff >= 0 }
-              : null
-          }
+          badge={null}
         />
       </div>
 
@@ -256,14 +230,38 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         {/* Bar chart */}
         <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-5">
-          <h2 className="text-sm font-bold text-gray-900">Members added per month</h2>
-          <p className="text-xs text-gray-400 mt-0.5 mb-5">Monthly breakdown for {year}</p>
+          <h2 className="text-sm font-bold text-gray-900">
+            Members added per month
+          </h2>
+          <p className="text-xs text-gray-400 mt-0.5 mb-5">
+            Monthly breakdown for {year}
+          </p>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={monthlyChartData} barSize={22} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "#f9fafb", radius: 6 }} />
+            <BarChart
+              data={monthlyChartData}
+              barSize={22}
+              margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#f0f0f0"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                content={<CustomBarTooltip />}
+                cursor={{ fill: "#f9fafb", radius: 6 }}
+              />
               <Bar dataKey="members" fill="#027027" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -272,7 +270,9 @@ export default function DashboardPage() {
         {/* Donut chart */}
         <div className="bg-white border border-gray-100 rounded-2xl p-5">
           <h2 className="text-sm font-bold text-gray-900">Member status</h2>
-          <p className="text-xs text-gray-400 mt-0.5 mb-3">Active vs archived</p>
+          <p className="text-xs text-gray-400 mt-0.5 mb-3">
+            Active vs archived
+          </p>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -293,15 +293,27 @@ export default function DashboardPage() {
           {/* Legend */}
           <div className="flex flex-col gap-2 mt-1">
             {donutData.map((entry, i) => (
-              <div key={entry.name} className="flex items-center justify-between text-xs">
+              <div
+                key={entry.name}
+                className="flex items-center justify-between text-xs"
+              >
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: DONUT_COLORS[i] }} />
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm inline-block"
+                    style={{ background: DONUT_COLORS[i] }}
+                  />
                   <span className="text-gray-600">{entry.name}</span>
                 </div>
                 <span className="font-semibold text-gray-800">
                   {entry.value}{" "}
                   <span className="text-gray-400 font-normal">
-                    ({Math.round(entry.value / (data.active + data.archived) * 100)}%)
+                    (
+                    {Math.round(
+                      (entry.value! /
+                        (dashboard?.active! + dashboard?.archived!)) *
+                        100,
+                    )}
+                    %)
                   </span>
                 </span>
               </div>
@@ -313,24 +325,32 @@ export default function DashboardPage() {
       {/* Events row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-100 rounded-2xl p-5">
-          <h2 className="text-sm font-bold text-gray-900 mb-0.5">Recent events</h2>
+          <h2 className="text-sm font-bold text-gray-900 mb-0.5">
+            Recent events
+          </h2>
           <p className="text-xs text-gray-400 mb-3">Last completed events</p>
-          {data.recent.length === 0 ? (
-            <p className="text-sm text-gray-400 italic py-4">No recent events.</p>
+          {dashboard?.recent.length === 0 ? (
+            <p className="text-sm text-gray-400 italic py-4">
+              No recent events.
+            </p>
           ) : (
-            data.recent.map((e, i) => (
+            dashboard?.recent.map((e, i) => (
               <EventItem key={i} event={e} variant="recent" />
             ))
           )}
         </div>
 
         <div className="bg-white border border-gray-100 rounded-2xl p-5">
-          <h2 className="text-sm font-bold text-gray-900 mb-0.5">Upcoming events</h2>
+          <h2 className="text-sm font-bold text-gray-900 mb-0.5">
+            Upcoming events
+          </h2>
           <p className="text-xs text-gray-400 mb-3">Next scheduled events</p>
-          {data.upcoming.length === 0 ? (
-            <p className="text-sm text-gray-400 italic py-4">No upcoming events for {year}.</p>
+          {dashboard?.upcoming.length === 0 ? (
+            <p className="text-sm text-gray-400 italic py-4">
+              No upcoming events for {year}.
+            </p>
           ) : (
-            data.upcoming.map((e, i) => (
+            dashboard?.upcoming.map((e, i) => (
               <EventItem key={i} event={e} variant="upcoming" />
             ))
           )}
