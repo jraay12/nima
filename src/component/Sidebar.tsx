@@ -40,6 +40,10 @@ const Sidebar = () => {
     };
   }, []);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/administrator/login");
+  };
   return (
     <aside
       className={`relative flex flex-col bg-[#014d1a] transition-all duration-300 ease-in-out ${
@@ -168,7 +172,7 @@ const Sidebar = () => {
           </div>
         ) : (
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => handleLogout()}
             className="w-full flex items-center justify-center py-2 text-white/30 hover:text-white/70 transition-colors"
             aria-label="Log out"
           >
