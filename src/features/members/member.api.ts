@@ -19,3 +19,8 @@ export const fetchBoardMember = async () => {
   const response = await api.get("/members/board");
   return response.data.data;
 };
+
+export const deactivate = async (id: string) => {
+  const response = await api.patch(`/members/${id}/deactivate`);
+  return response.data;
+};

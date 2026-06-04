@@ -14,7 +14,9 @@ import {
   ChevronUp,
   Search,
   ArrowRight,
+  Archive,
 } from "lucide-react";
+import { useDeactivateMember } from "../features/members/member.hook";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -461,7 +463,8 @@ export function MemberList({
 }: MemberListProps) {
   const [search, setSearch] = useState("");
   const [boardOnly, setBoardOnly] = useState(false);
-
+  const [pendingDelete, setPendingDelete] = useState<Member | null>(null); // 👈 add this
+  const deactivateMutation = useDeactivateMember();
   const filtered = members?.filter((m) => {
     const q = search.toLowerCase();
     const matchesSearch =
@@ -474,10 +477,26 @@ export function MemberList({
     return matchesSearch && matchesBoard;
   });
 
+  const handleDeleteConfirm = () => {
+    if (!pendingDelete) return;
+    deactivateMutation.mutate(pendingDelete.id, {
+      onSuccess: () => {
+        setPendingDelete(null);
+      },
+    });
+  };
+
   // ── Admin layout ──
   if (mode === "admin") {
     return (
       <div>
+        {pendingDelete && (
+          <DeleteConfirmModal
+            member={pendingDelete}
+            onCancel={() => setPendingDelete(null)}
+            onConfirm={handleDeleteConfirm}
+          />
+        )}
         {/* Toolbar */}
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
@@ -521,7 +540,7 @@ export function MemberList({
                 member={member}
                 imageBaseUrl={imageBaseUrl}
                 onEdit={onEdit}
-                onDelete={onDelete}
+                onDelete={(m) => setPendingDelete(m)}
               />
             ))}
           </div>
@@ -581,3 +600,61 @@ export function MemberList({
 }
 
 export default MemberList;
+
+function DeleteConfirmModal({
+  member,
+  onConfirm,
+  onCancel,
+}: {
+  member: Member;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95 duration-200">
+        {/* Icon */}
+        <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
+          <Archive className="w-5 h-5 text-amber-500" />
+        </div>
+
+        {/* Title */}
+        <h2 className="text-base font-bold text-gray-900 text-center">
+          Archive member?
+        </h2>
+
+        {/* Description */}
+        <p className="text-sm text-gray-500 text-center mt-1.5">
+          <span className="font-medium text-gray-700">{member.full_name}</span>{" "}
+          will be moved to archive. You can restore it later.
+        </p>
+
+        {/* Actions */}
+        <div className="flex gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 py-2.5 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-xl transition-colors"
+          >
+            Archive
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
