@@ -36,6 +36,7 @@ export type Member = {
   country: string;
   created_at: string;
   updated_at: string;
+  year: string;
 };
 
 export type MemberListProps = {
@@ -225,6 +226,8 @@ function AdminMemberCard({
   onEdit?: (m: Member) => void;
   onDelete?: (m: Member) => void;
 }) {
+  const currentYear = new Date().getFullYear().toString();
+  const activeMember = currentYear === member.year;
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
       <div className="flex items-start gap-4">
@@ -247,6 +250,19 @@ function AdminMemberCard({
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
                   <Crown className="w-2.5 h-2.5" />
                   {member.board_title ?? "Board Member"}
+                </span>
+              )}
+
+              {/* Membership status badge */}
+              {activeMember ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  Active
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                  Expired
                 </span>
               )}
 
