@@ -15,8 +15,13 @@ import {
   Search,
   ArrowRight,
   Archive,
+  X,
 } from "lucide-react";
-import { useDeactivateMember } from "../features/members/member.hook";
+import {
+  useCreateMember,
+  useDeactivateMember,
+} from "../features/members/member.hook";
+import { MemberForm } from "./MemberForm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +44,7 @@ export type Member = {
   created_at: string;
   updated_at: string;
   year: string;
+  speciality: string
 };
 
 export type MemberListProps = {
@@ -459,11 +465,12 @@ export function MemberList({
   mode = "admin",
   imageBaseUrl = import.meta.env.VITE_IMAGE_PREFIX,
   onEdit,
-  onDelete,
 }: MemberListProps) {
   const [search, setSearch] = useState("");
   const [boardOnly, setBoardOnly] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Member | null>(null); // 👈 add this
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const upsertMutation = useCreateMember();
   const deactivateMutation = useDeactivateMember();
   const filtered = members?.filter((m) => {
     const q = search.toLowerCase();
@@ -496,6 +503,51 @@ export function MemberList({
             onCancel={() => setPendingDelete(null)}
             onConfirm={handleDeleteConfirm}
           />
+        )}
+        {editingMember && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setEditingMember(null)}
+            />
+
+            {/* Modal panel */}
+            <div className="relative bg-gray-50 rounded-2xl w-full max-w-3xl my-8 shadow-2xl">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white rounded-t-2xl">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">
+                    Edit Member
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {editingMember.full_name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingMember(null)}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <div className="p-6">
+                <MemberForm
+                  defaultMember={editingMember}
+                  isSubmitting={upsertMutation.isPending}
+                  onCancel={() => setEditingMember(null)}
+                  onSubmit={(fd) =>
+                    upsertMutation.mutate(fd, {
+                      onSuccess: () => setEditingMember(null),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
         )}
         {/* Toolbar */}
         <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -539,7 +591,7 @@ export function MemberList({
                 key={member.id}
                 member={member}
                 imageBaseUrl={imageBaseUrl}
-                onEdit={onEdit}
+                onEdit={(m) => setEditingMember(m)}
                 onDelete={(m) => setPendingDelete(m)}
               />
             ))}
