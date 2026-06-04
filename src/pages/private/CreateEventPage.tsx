@@ -312,17 +312,11 @@ const CreateEventPage = () => {
               {/* Title */}
               <InputField
                 label="Event Title"
-                required
+                
                 error={errors.title?.message}
               >
                 <input
-                  {...register("title", {
-                    required: "Event title is required",
-                    minLength: {
-                      value: 5,
-                      message: "Title must be at least 5 characters",
-                    },
-                  })}
+                  {...register("title")}
                   placeholder="e.g. NIMA Healthcare Leadership Summit 2026"
                   className={inputCls}
                 />
@@ -331,14 +325,12 @@ const CreateEventPage = () => {
               {/* Badge */}
               <InputField
                 label="Event Category / Badge"
-                required
+                
                 error={errors.badge?.message}
               >
                 <div className="relative">
                   <select
-                    {...register("badge", {
-                      required: "Please select a category",
-                    })}
+                    {...register("badge")}
                     className={selectCls}
                   >
                     <option value="">Select a category…</option>
@@ -427,7 +419,7 @@ const CreateEventPage = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <InputField label="Event Date" required>
+              <InputField label="Event Date">
                 <div className="relative">
                   <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
 
@@ -444,16 +436,14 @@ const CreateEventPage = () => {
 
               <InputField
                 label="Start Time"
-                required
+                
                 error={errors.start_time?.message}
               >
                 <div className="relative">
                   <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="time"
-                    {...register("start_time", {
-                      required: "Start time is required",
-                    })}
+                    {...register("start_time")}
                     className={inputCls + " pl-10 w-full"}
                   />
                 </div>
@@ -461,16 +451,14 @@ const CreateEventPage = () => {
 
               <InputField
                 label="End Time"
-                required
+                
                 error={errors.end_time?.message}
               >
                 <div className="relative">
                   <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="time"
-                    {...register("end_time", {
-                      required: "End time is required",
-                    })}
+                    {...register("end_time")}
                     className={inputCls + " pl-10 w-full"}
                   />
                 </div>
@@ -489,13 +477,11 @@ const CreateEventPage = () => {
             <div className="space-y-5">
               <InputField
                 label="Venue Name"
-                required
+                
                 error={errors.venue?.message}
               >
                 <input
-                  {...register("venue", {
-                    required: "Venue name is required",
-                  })}
+                  {...register("venue")}
                   placeholder="e.g. Green Valley Ranch Resort"
                   className={inputCls}
                 />
@@ -503,24 +489,20 @@ const CreateEventPage = () => {
 
               <InputField
                 label="Street Address"
-                required
+                
                 error={errors.address?.message}
               >
                 <input
-                  {...register("address", {
-                    required: "Address is required",
-                  })}
+                  {...register("address")}
                   placeholder="e.g. 2300 Paseo Verde Pkwy"
                   className={inputCls}
                 />
               </InputField>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <InputField label="City" required error={errors.city?.message}>
+                <InputField label="City"  error={errors.city?.message}>
                   <input
-                    {...register("city", {
-                      required: "City is required",
-                    })}
+                    {...register("city")}
                     placeholder="Henderson"
                     className={inputCls}
                   />
@@ -528,13 +510,11 @@ const CreateEventPage = () => {
 
                 <InputField
                   label="State"
-                  required
+                  
                   error={errors.state?.message}
                 >
                   <input
-                    {...register("state", {
-                      required: "State is required",
-                    })}
+                    {...register("state",)}
                     placeholder="NV"
                     className={inputCls}
                   />
@@ -542,13 +522,11 @@ const CreateEventPage = () => {
 
                 <InputField
                   label="ZIP Code"
-                  required
+                  
                   error={errors.zipCode?.message}
                 >
                   <input
-                    {...register("zipCode", {
-                      required: "ZIP code is required",
-                    })}
+                    {...register("zipCode")}
                     placeholder="89052"
                     className={inputCls}
                   />
