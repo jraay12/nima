@@ -87,7 +87,7 @@ const BoardMember = () => {
               <MemberCard
                 image={
                   member.image_path
-                    ? `${import.meta.env.VITE_IMAGE_PREFIX}/${member.image_path}`
+                    ? `${import.meta.env.VITE_IMAGE_PREFIX}${member.image_path}`
                     : ""
                 }
                 name={member.full_name}
@@ -130,7 +130,6 @@ type MemberCardProps = {
 
 function MemberCard({ image, name, specialty, role }: MemberCardProps) {
   const [imgError, setImgError] = useState(false);
-  console.log(image)
 
   return (
     <div className="group bg-white border border-gray-100 rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md relative overflow-hidden h-full flex flex-col">

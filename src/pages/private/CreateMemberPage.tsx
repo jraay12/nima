@@ -27,6 +27,7 @@ import {
   Undo,
   Redo,
   Type,
+  Stethoscope,
 } from "lucide-react";
 import { useCreateMember } from "../../features/members/member.hook";
 
@@ -36,7 +37,10 @@ type MemberFormValues = {
   full_name: string;
   practice_name: string;
   practice_email: string;
+  practice_referral_email: string;
+  speciality: string;
   practice_contact_number: string;
+  year: string;
   fax_number: string;
   website: string;
   city: string;
@@ -51,14 +55,8 @@ type MemberFormValues = {
 
 const BOARD_TITLES = [
   "Chairman of the Board",
-  "Vice Chairman",
-  "President",
-  "Vice President",
-  "Secretary",
-  "Treasurer",
   "Board Member",
-  "Executive Director",
-  "Advisory Member",
+  "Board Secretary",
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -353,11 +351,14 @@ const CreateMemberPage = () => {
       full_name: "",
       practice_name: "",
       practice_email: "",
+      practice_referral_email: "",
       practice_contact_number: "",
       fax_number: "",
+      year: "",
       website: "",
       city: "",
       state: "",
+      speciality: "",
       country: "",
       is_boardMember: false,
       board_title: "",
@@ -371,6 +372,7 @@ const CreateMemberPage = () => {
     formData.append("full_name", data.full_name);
     formData.append("practice_name", data.practice_name);
     formData.append("practice_email", data.practice_email);
+    formData.append("practice_referral_email", data.practice_referral_email);
     formData.append("practice_contact_number", data.practice_contact_number);
     formData.append("fax_number", data.fax_number);
     formData.append("website", data.website);
@@ -380,6 +382,8 @@ const CreateMemberPage = () => {
     formData.append("biography", biography);
     formData.append("is_boardMember", String(isBoardMember));
     formData.append("board_title", data.board_title);
+    formData.append("year", data.year);
+    formData.append("speciality", data.speciality);
 
     if (data.member) {
       formData.append("member", data.member);
@@ -396,6 +400,11 @@ const CreateMemberPage = () => {
     });
     // On success:
   };
+
+  const MEMBERSHIP_YEARS = Array.from(
+    { length: new Date().getFullYear() - 1979 },
+    (_, i) => String(new Date().getFullYear() - i),
+  );
 
   return (
     <div className="mx-auto pb-20">
@@ -492,7 +501,19 @@ const CreateMemberPage = () => {
                   <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     {...register("practice_name")}
-                    placeholder="e.g. Interventional Radiology and Red Rock Radiology Associates"
+                    placeholder="e.g. Red Rock Radiology Associates"
+                    className={inputCls + " pl-10"}
+                  />
+                </div>
+              </InputField>
+
+              {/* Speciality */}
+              <InputField label="Speciality" error={errors.speciality?.message}>
+                <div className="relative">
+                  <Stethoscope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    {...register("speciality")}
+                    placeholder="e.g. Interventional Radiology"
                     className={inputCls + " pl-10"}
                   />
                 </div>
@@ -508,7 +529,7 @@ const CreateMemberPage = () => {
               subtitle="Practice email, phone, fax, and website"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <InputField
                 label="Practice Email"
                 error={errors.practice_email?.message}
@@ -525,7 +546,22 @@ const CreateMemberPage = () => {
               </InputField>
 
               <InputField
-                label="Contact Number"
+                label="Practice Referral Email"
+                error={errors.practice_referral_email?.message}
+              >
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    {...register("practice_referral_email")}
+                    type="email"
+                    placeholder="referral@email.com"
+                    className={inputCls + " pl-10"}
+                  />
+                </div>
+              </InputField>
+
+              <InputField
+                label="Practice Contact Number"
                 error={errors.practice_contact_number?.message}
               >
                 <div className="relative">
@@ -574,18 +610,15 @@ const CreateMemberPage = () => {
               <InputField label="City" error={errors.city?.message}>
                 <input
                   {...register("city")}
-                  placeholder="Cagayan de Oro"
+                  placeholder="Las Vegas"
                   className={inputCls}
                 />
               </InputField>
 
-              <InputField
-                label="State / Province"
-                error={errors.state?.message}
-              >
+              <InputField label="State" error={errors.state?.message}>
                 <input
                   {...register("state")}
-                  placeholder="Misamis Oriental"
+                  placeholder="Nevada"
                   className={inputCls}
                 />
               </InputField>
@@ -593,11 +626,34 @@ const CreateMemberPage = () => {
               <InputField label="Country" error={errors.country?.message}>
                 <input
                   {...register("country")}
-                  placeholder="Philippines"
+                  placeholder="United States of America"
                   className={inputCls}
                 />
               </InputField>
             </div>
+          </div>
+
+          {/* ── Section: Membership Year ── */}
+          <div className="bg-white border border-gray-100 rounded-2xl p-6">
+            <SectionHeader
+              icon={Crown}
+              title="Membership Year"
+              subtitle="The year this member joined NIMANV"
+            />
+
+            <InputField label="Year Became Member" error={errors.year?.message}>
+              <div className="relative">
+                <select {...register("year", {required: "Year is required"})} className={selectCls}>
+                  <option value="">Select a year…</option>
+                  {MEMBERSHIP_YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+            </InputField>
           </div>
 
           {/* ── Section 4: Biography ── */}

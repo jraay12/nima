@@ -1,34 +1,34 @@
-name: Deploy Vite React App
+# name: Deploy Vite React App
 
-on:
-  push:
-    branches:
-      - master  # or master
+# on:
+#   push:
+#     branches:
+#       - master  # or master
 
-jobs:
-  build-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+#       - name: Install dependencies
+#         run: npm install
 
-      - name: Build Vite app
-        run: npm run build
-        env:
-          VITE_IMAGE_PREFIX: https://deadline-academy-novel-gold.trycloudflare.com
-          VITE_API_URL: https://deadline-academy-novel-gold.trycloudflare.com
+#       - name: Build Vite app
+#         run: npm run build
+#         env:
+#           VITE_IMAGE_PREFIX: https://deadline-academy-novel-gold.trycloudflare.com
+#           VITE_API_URL: https://deadline-academy-novel-gold.trycloudflare.com
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.MYTOKEN }}
-          publish_dir: ./dist
+#       - name: Deploy to GitHub Pages
+#         uses: peaceiris/actions-gh-pages@v4
+#         with:
+#           github_token: ${{ secrets.MYTOKEN }}
+#           publish_dir: ./dist
