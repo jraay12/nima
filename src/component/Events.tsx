@@ -204,6 +204,7 @@ export function NimaEventCard({
   month,
   year,
 }: Partial<EventCardProps>) {
+  console.log(image)
   return (
     <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative">
       {/* Bottom green sweep */}

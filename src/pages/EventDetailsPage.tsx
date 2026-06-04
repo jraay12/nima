@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import NimaFooter from "../component/Footer";
 import { useFetchEventsById } from "../features/events/events.hook";
+import { convertTo12Hours } from "../lib/convertTimeTo12";
 function FadeIn({
   children,
   delay = 0,
@@ -207,8 +208,8 @@ const EventDetailsPage = () => {
           <p className="text-xl md:text-2xl font-bold text-gray-700">
             {date.getDate().toString()}{" "}
             {date.toLocaleString("en-US", { month: "short" }).toUpperCase()},{" "}
-            {date.getFullYear().toString()} @ {event.start_time} -{" "}
-            {event.end_time}
+            {date.getFullYear().toString()} @ {convertTo12Hours(event.start_time)} -{" "}
+            {convertTo12Hours(event.end_time)}
           </p>
         </FadeIn>
         <div className="border-t border-gray-200 mt-6" />
@@ -249,7 +250,7 @@ const EventDetailsPage = () => {
                       </p>
                     </div>
                     <p className="text-sm text-gray-500 pl-5">
-                      {event.start_time} - {event.end_time}
+                      {convertTo12Hours(event.start_time)} - {convertTo12Hours(event.end_time)}
                     </p>
                   </div>
 
