@@ -214,7 +214,7 @@ export function NimaEventCard({
         <div className="relative md:col-span-1 h-64 md:min-h-[280px] md:max-h-[320px] bg-gray-100 overflow-hidden">
           {image ? (
             <img
-              src={image}
+              src={`${import.meta.env.VITE_IMAGE_PREFIX}{image}`}
               alt={title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />

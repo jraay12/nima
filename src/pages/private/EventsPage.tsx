@@ -52,7 +52,6 @@ const EventsPage = () => {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const { data: events } = useFetchEvents();
-  console.log(events)
   let past: boolean;
   const filtered = events?.events?.filter((e: Event) => {
     const matchSearch =

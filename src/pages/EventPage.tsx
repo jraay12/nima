@@ -26,6 +26,7 @@ function FadeIn({
 const EventPage = () => {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const limit = 10;
 
   const { data: eventsData } = useFetchEvents();
@@ -37,18 +38,25 @@ const EventPage = () => {
      FILTER EVENTS
   ----------------------------- */
   const filteredEvents = useMemo(() => {
-    if (!selectedDate) return events;
-
-    const target = new Date(selectedDate);
-    target.setHours(0, 0, 0, 0);
-
     return events.filter((event) => {
-      const eventDate = new Date(event.event_date);
-      eventDate.setHours(0, 0, 0, 0);
+      const matchesDate = (() => {
+        if (!selectedDate) return true;
 
-      return eventDate.getTime() === target.getTime();
+        const target = new Date(selectedDate);
+        target.setHours(0, 0, 0, 0);
+
+        const eventDate = new Date(event.event_date);
+        eventDate.setHours(0, 0, 0, 0);
+
+        return eventDate.getTime() === target.getTime();
+      })();
+
+      const matchesSearch =
+        !search || event.title?.toLowerCase().includes(search.toLowerCase());
+
+      return matchesDate && matchesSearch;
     });
-  }, [events, selectedDate]);
+  }, [events, selectedDate, search]);
 
   /* ----------------------------
      PAGINATION
@@ -100,7 +108,7 @@ const EventPage = () => {
 
           {/* SEARCH */}
           <FadeIn>
-            <EventSearch onSearch={(query) => console.log("Search:", query)} />
+            <EventSearch onSearch={(query) => setSearch(query)} />
           </FadeIn>
 
           {/* FILTER BAR */}
@@ -159,10 +167,8 @@ const EventPage = () => {
                         .toLocaleString("en-US", { month: "short" })
                         .toUpperCase()}
                       year={date.getFullYear().toString()}
-                      image={`${import.meta.env.VITE_IMAGE_PREFIX}${
-                        event.image_path
-                      }`}
-                      onRegister={() => console.log("Register:", event.title)}
+                      image={event.image_path}
+                      onRegister={() => null}
                       onFindMore={() => handleLearnMore(event.id)}
                       mapUrl={googleMapsUrl}
                       featuredSpeaker={event.featureSpeakers}

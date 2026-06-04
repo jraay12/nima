@@ -145,7 +145,6 @@ function MemberAvatar({
 }) {
   const [imgError, setImgError] = useState(false);
   const src = resolveImageUrl(member.image_path, imageBaseUrl);
-  console.log(src);
   const sizeMap = {
     sm: "w-10 h-10 text-sm",
     md: "w-14 h-14 text-base",

@@ -2,10 +2,32 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
-  User, Mail, Phone, Globe, MapPin, Building2, FileText,
-  AlertCircle, ChevronDown, Crown, Bold, Italic, Underline,
-  List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Heading1, Heading2, Quote, Minus, Undo, Redo, Type, Stethoscope,
+  User,
+  Mail,
+  Phone,
+  Globe,
+  MapPin,
+  Building2,
+  FileText,
+  AlertCircle,
+  ChevronDown,
+  Crown,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Heading1,
+  Heading2,
+  Quote,
+  Minus,
+  Undo,
+  Redo,
+  Type,
+  Stethoscope,
 } from "lucide-react";
 import type { Member } from "./MemberList";
 
@@ -33,7 +55,7 @@ export type MemberFormValues = {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 type MemberFormProps = {
-  defaultMember?: Member;           // pass for edit mode
+  defaultMember?: Member; // pass for edit mode
   onSubmit: (fd: FormData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
@@ -41,7 +63,11 @@ type MemberFormProps = {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BOARD_TITLES = ["Chairman of the Board", "Board Member", "Board Secretary"];
+const BOARD_TITLES = [
+  "Chairman of the Board",
+  "Board Member",
+  "Board Secretary",
+];
 const MEMBERSHIP_YEARS = Array.from(
   { length: new Date().getFullYear() - 1979 },
   (_, i) => String(new Date().getFullYear() - i),
@@ -59,7 +85,15 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
-function SectionHeader({ icon: Icon, title, subtitle }: { icon: React.ElementType; title: string; subtitle?: string }) {
+function SectionHeader({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <div className="flex items-start gap-3 mb-5">
       <div className="w-8 h-8 rounded-lg bg-[#ebf5ee] flex items-center justify-center shrink-0 mt-0.5">
@@ -73,11 +107,22 @@ function SectionHeader({ icon: Icon, title, subtitle }: { icon: React.ElementTyp
   );
 }
 
-function InputField({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
+function InputField({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+        {label}
+        {required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
       <FieldError message={error} />
@@ -85,9 +130,9 @@ function InputField({ label, required, error, children }: { label: string; requi
   );
 }
 
-const inputCls = "w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-[#027027] focus:ring-2 focus:ring-[#027027]/10 hover:border-gray-300";
+const inputCls =
+  "w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-[#027027] focus:ring-2 focus:ring-[#027027]/10 hover:border-gray-300";
 const selectCls = inputCls + " appearance-none cursor-pointer pr-8";
-
 
 function ToolbarBtn({
   onClick,
@@ -120,18 +165,23 @@ function ToolbarDivider() {
   return <div className="w-px h-5 bg-gray-200 mx-0.5" />;
 }
 
-
 // ─── Rich Text Editor ─────────────────────────────────────────────────────────
 
 function RichTextEditor({
   onChange,
-  
+  value,
 }: {
   value: string;
   onChange: (html: string) => void;
 }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [activeFormats, setActiveFormats] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (editorRef.current && value) {
+      editorRef.current.innerHTML = value;
+    }
+  }, []);
 
   const exec = useCallback((command: string, val?: string) => {
     document.execCommand(command, false, val);
@@ -300,18 +350,43 @@ function RichTextEditor({
 
 // ─── MemberForm ───────────────────────────────────────────────────────────────
 
-export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: MemberFormProps) {
+export function MemberForm({
+  defaultMember,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+}: MemberFormProps) {
   const isEdit = !!defaultMember;
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(
-    defaultMember?.image_path ?? null   // pre-fill existing photo URL
+    defaultMember?.image_path ?? null, // pre-fill existing photo URL
   );
-  const [biography, setBiography] = useState(
-    typeof defaultMember?.biography === "string" ? defaultMember.biography : ""
+  const [biography, setBiography] = useState(() => {
+    const bio = defaultMember?.biography;
+    if (!bio) return "";
+    if (typeof bio === "string") {
+      // Try to parse if it's a JSON-encoded array like ["..."]
+      try {
+        const parsed = JSON.parse(bio);
+        if (Array.isArray(parsed)) return parsed[0] ?? "";
+        return bio;
+      } catch {
+        return bio;
+      }
+    }
+    if (Array.isArray(bio)) return bio[0] ?? "";
+    return "";
+  });
+  const [isBoardMember, setIsBoardMember] = useState(
+    defaultMember?.is_boardMember ?? false,
   );
-  const [isBoardMember, setIsBoardMember] = useState(defaultMember?.is_boardMember ?? false);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<MemberFormValues>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<MemberFormValues>({
     defaultValues: {
       id: defaultMember?.id,
       full_name: defaultMember?.full_name ?? "",
@@ -340,7 +415,10 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
     formData.append("full_name", data.full_name);
     formData.append("practice_name", data.practice_name);
     formData.append("practice_email", data.practice_email);
-    formData.append("practice_referral_email", data.practice_referral_email ?? "");
+    formData.append(
+      "practice_referral_email",
+      data.practice_referral_email ?? "",
+    );
     formData.append("practice_contact_number", data.practice_contact_number);
     formData.append("fax_number", data.fax_number);
     formData.append("website", data.website);
@@ -363,22 +441,44 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
       <div className="space-y-6">
         {/* ── Personal Info ── */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6">
-          <SectionHeader icon={User} title="Personal Information" subtitle="Member's name and profile photo" />
+          <SectionHeader
+            icon={User}
+            title="Personal Information"
+            subtitle="Member's name and profile photo"
+          />
           <div className="space-y-5">
             {/* Photo Upload */}
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Profile Photo</label>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                Profile Photo
+              </label>
               <div className="flex items-center gap-5">
-                <label htmlFor="member-photo" className="relative flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 border-dashed border-gray-300 cursor-pointer overflow-hidden hover:border-[#027027] transition group shrink-0">
+                <label
+                  htmlFor="member-photo"
+                  className="relative flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 border-dashed border-gray-300 cursor-pointer overflow-hidden hover:border-[#027027] transition group shrink-0"
+                >
                   {photoPreview ? (
-                    <img src={`${import.meta.env.VITE_IMAGE_PREFIX}${photoPreview}`} className="absolute inset-0 w-full h-full object-cover" />
+                    <img
+                      src={`${import.meta.env.VITE_IMAGE_PREFIX}${photoPreview}`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                   ) : (
                     <User className="w-8 h-8 text-gray-300" />
                   )}
-                  <div className={`absolute inset-0 flex items-center justify-center rounded-full transition ${photoPreview ? "bg-black/30 group-hover:bg-black/50" : "bg-transparent group-hover:bg-black/5"}`}>
-                    {photoPreview && <p className="text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition">Change</p>}
+                  <div
+                    className={`absolute inset-0 flex items-center justify-center rounded-full transition ${photoPreview ? "bg-black/30 group-hover:bg-black/50" : "bg-transparent group-hover:bg-black/5"}`}
+                  >
+                    {photoPreview && (
+                      <p className="text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition">
+                        Change
+                      </p>
+                    )}
                   </div>
-                  <input id="member-photo" type="file" accept="image/*" className="hidden"
+                  <input
+                    id="member-photo"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -388,7 +488,11 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
                   />
                 </label>
                 <div className="text-xs text-gray-500 space-y-1">
-                  <p className="font-medium text-gray-700">{isEdit ? "Replace profile photo" : "Upload a profile photo"}</p>
+                  <p className="font-medium text-gray-700">
+                    {isEdit
+                      ? "Replace profile photo"
+                      : "Upload a profile photo"}
+                  </p>
                   <p>PNG, JPG, WEBP accepted</p>
                   <p>Recommended: square image, min 200×200px</p>
                 </div>
@@ -396,18 +500,33 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
             </div>
 
             <InputField label="Full Name" error={errors.full_name?.message}>
-              <input {...register("full_name")} placeholder="Dr. John Doe" className={inputCls} />
+              <input
+                {...register("full_name")}
+                placeholder="Dr. John Doe"
+                className={inputCls}
+              />
             </InputField>
-            <InputField label="Practice Name" error={errors.practice_name?.message}>
+            <InputField
+              label="Practice Name"
+              error={errors.practice_name?.message}
+            >
               <div className="relative">
                 <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("practice_name")} placeholder="e.g. Red Rock Radiology Associates" className={inputCls + " pl-10"} />
+                <input
+                  {...register("practice_name")}
+                  placeholder="e.g. Red Rock Radiology Associates"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
             <InputField label="Speciality" error={errors.speciality?.message}>
               <div className="relative">
                 <Stethoscope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("speciality")} placeholder="e.g. Interventional Radiology" className={inputCls + " pl-10"} />
+                <input
+                  {...register("speciality")}
+                  placeholder="e.g. Interventional Radiology"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
           </div>
@@ -415,36 +534,71 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
 
         {/* ── Contact ── */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6">
-          <SectionHeader icon={Mail} title="Contact Information" subtitle="Practice email, phone, fax, and website" />
+          <SectionHeader
+            icon={Mail}
+            title="Contact Information"
+            subtitle="Practice email, phone, fax, and website"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <InputField label="Practice Email" error={errors.practice_email?.message}>
+            <InputField
+              label="Practice Email"
+              error={errors.practice_email?.message}
+            >
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("practice_email")} type="email" placeholder="referral@email.com" className={inputCls + " pl-10"} />
+                <input
+                  {...register("practice_email")}
+                  type="email"
+                  placeholder="referral@email.com"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
-            <InputField label="Practice Referral Email" error={errors.practice_referral_email?.message}>
+            <InputField
+              label="Practice Referral Email"
+              error={errors.practice_referral_email?.message}
+            >
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("practice_referral_email")} type="email" placeholder="referral@email.com" className={inputCls + " pl-10"} />
+                <input
+                  {...register("practice_referral_email")}
+                  type="email"
+                  placeholder="referral@email.com"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
-            <InputField label="Practice Contact Number" error={errors.practice_contact_number?.message}>
+            <InputField
+              label="Practice Contact Number"
+              error={errors.practice_contact_number?.message}
+            >
               <div className="relative">
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("practice_contact_number")} placeholder="+1 234 567 8901" className={inputCls + " pl-10"} />
+                <input
+                  {...register("practice_contact_number")}
+                  placeholder="+1 234 567 8901"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
             <InputField label="Fax Number" error={errors.fax_number?.message}>
               <div className="relative">
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("fax_number")} placeholder="123-456-789" className={inputCls + " pl-10"} />
+                <input
+                  {...register("fax_number")}
+                  placeholder="123-456-789"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
             <InputField label="Website" error={errors.website?.message}>
               <div className="relative">
                 <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input {...register("website")} placeholder="https://example.com" className={inputCls + " pl-10"} />
+                <input
+                  {...register("website")}
+                  placeholder="https://example.com"
+                  className={inputCls + " pl-10"}
+                />
               </div>
             </InputField>
           </div>
@@ -452,16 +606,32 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
 
         {/* ── Location ── */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6">
-          <SectionHeader icon={MapPin} title="Location" subtitle="City, state, and country" />
+          <SectionHeader
+            icon={MapPin}
+            title="Location"
+            subtitle="City, state, and country"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InputField label="City" error={errors.city?.message}>
-              <input {...register("city")} placeholder="Las Vegas" className={inputCls} />
+              <input
+                {...register("city")}
+                placeholder="Las Vegas"
+                className={inputCls}
+              />
             </InputField>
             <InputField label="State" error={errors.state?.message}>
-              <input {...register("state")} placeholder="Nevada" className={inputCls} />
+              <input
+                {...register("state")}
+                placeholder="Nevada"
+                className={inputCls}
+              />
             </InputField>
             <InputField label="Country" error={errors.country?.message}>
-              <input {...register("country")} placeholder="United States of America" className={inputCls} />
+              <input
+                {...register("country")}
+                placeholder="United States of America"
+                className={inputCls}
+              />
             </InputField>
           </div>
         </div>
@@ -469,13 +639,22 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
         {/* ── Membership Year — hidden on edit ── */}
         {!isEdit && (
           <div className="bg-white border border-gray-100 rounded-2xl p-6">
-            <SectionHeader icon={Crown} title="Membership Year" subtitle="The year this member joined NIMANV" />
+            <SectionHeader
+              icon={Crown}
+              title="Membership Year"
+              subtitle="The year this member joined NIMANV"
+            />
             <InputField label="Year Became Member" error={errors.year?.message}>
               <div className="relative">
-                <select {...register("year", { required: "Year is required" })} className={selectCls}>
+                <select
+                  {...register("year", { required: "Year is required" })}
+                  className={selectCls}
+                >
                   <option value="">Select a year…</option>
                   {MEMBERSHIP_YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -486,32 +665,57 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
 
         {/* ── Biography ── */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6">
-          <SectionHeader icon={FileText} title="Biography" subtitle="Rich-text biography — supports headings, bullets, and more" />
+          <SectionHeader
+            icon={FileText}
+            title="Biography"
+            subtitle="Rich-text biography — supports headings, bullets, and more"
+          />
           <RichTextEditor value={biography} onChange={setBiography} />
         </div>
 
         {/* ── Board Membership ── */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6">
-          <SectionHeader icon={Crown} title="Board Membership" subtitle="Designate this member as a board member and assign a title" />
+          <SectionHeader
+            icon={Crown}
+            title="Board Membership"
+            subtitle="Designate this member as a board member and assign a title"
+          />
           <div className="space-y-5">
             <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
               <div>
-                <p className="text-sm font-semibold text-gray-800">Board Member</p>
-                <p className="text-xs text-gray-500 mt-0.5">Mark this member as part of the board</p>
+                <p className="text-sm font-semibold text-gray-800">
+                  Board Member
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Mark this member as part of the board
+                </p>
               </div>
-              <button type="button"
-                onClick={() => { setIsBoardMember((v) => !v); setValue("is_boardMember", !isBoardMember); }}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsBoardMember((v) => !v);
+                  setValue("is_boardMember", !isBoardMember);
+                }}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#027027]/30 ${isBoardMember ? "bg-[#027027]" : "bg-gray-200"}`}
               >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${isBoardMember ? "translate-x-6" : "translate-x-1"}`} />
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${isBoardMember ? "translate-x-6" : "translate-x-1"}`}
+                />
               </button>
             </div>
             {isBoardMember && (
-              <InputField label="Board Title" error={errors.board_title?.message}>
+              <InputField
+                label="Board Title"
+                error={errors.board_title?.message}
+              >
                 <div className="relative">
                   <select {...register("board_title")} className={selectCls}>
                     <option value="">Select a title…</option>
-                    {BOARD_TITLES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {BOARD_TITLES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
@@ -522,16 +726,37 @@ export function MemberForm({ defaultMember, onSubmit, onCancel, isSubmitting }: 
 
         {/* ── Action bar ── */}
         <div className="bg-white border border-gray-100 rounded-2xl px-6 py-4 flex items-center justify-between gap-4 flex-wrap shadow-[0_4px_24px_rgba(0,0,0,0.07)]">
-          <button type="button" onClick={onCancel} className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+          >
             Cancel
           </button>
-          <button type="submit" disabled={isSubmitting}
+          <button
+            type="submit"
+            disabled={isSubmitting}
             className="inline-flex items-center gap-2 bg-[#027027] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 hover:bg-[#025f22] active:scale-[0.98] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#027027]/30"
           >
             {isSubmitting ? (
-              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
+              <svg
+                className="animate-spin w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                />
               </svg>
             ) : (
               <User className="w-4 h-4" />

@@ -44,7 +44,7 @@ const Header = () => {
               className="flex items-center gap-2.5 group shrink-0 cursor-pointer"
               aria-label="NIMA Home"
             >
-              <div className="relative w-9 h-9 overflow-hidden rounded-lg">
+              <div className="relative w-14 h-14 overflow-hidden rounded-lg">
                 <img
                   src="https://nimanv.com/wp-content/uploads/2024/12/nima-logo.png"
                   alt="NIMA logo"
