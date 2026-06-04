@@ -464,7 +464,6 @@ export function MemberList({
   members,
   mode = "admin",
   imageBaseUrl = import.meta.env.VITE_IMAGE_PREFIX,
-  onEdit,
 }: MemberListProps) {
   const [search, setSearch] = useState("");
   const [boardOnly, setBoardOnly] = useState(false);

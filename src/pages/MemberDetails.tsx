@@ -79,9 +79,17 @@ function resolveBiography(bio: Member["biography"]): string {
 
 function resolveImageUrl(path: string | null, base?: string): string | null {
   if (!path) return null;
+
   const clean = path.replace(/\\/g, "/");
+
   if (clean.startsWith("http")) return clean;
-  return base ? `${base.replace(/\/$/, "")}/${clean}` : `/${clean}`;
+
+  const normalizedBase = base?.replace(/\/$/, "");
+  const normalizedPath = clean.replace(/^\/+/, ""); // 🔥 FIX HERE
+
+  return normalizedBase
+    ? `${normalizedBase}/${normalizedPath}`
+    : `/${normalizedPath}`;
 }
 
 function getInitials(name: string): string {
@@ -302,7 +310,7 @@ const MemberDetails = () => {
             {member.practice_email && (
               <ContactPill
                 icon={Mail}
-                label="Email"
+                label="Pratice Email"
                 value={member.practice_email}
                 href={`mailto:${member.practice_email}`}
               />
@@ -310,7 +318,7 @@ const MemberDetails = () => {
             {member.practice_referral_email && (
               <ContactPill
                 icon={Mail}
-                label="Referral Email"
+                label="Practice Referral Email"
                 value={member.practice_referral_email}
                 href={`mailto:${member.practice_referral_email}`}
               />
@@ -318,7 +326,7 @@ const MemberDetails = () => {
             {member.practice_contact_number && (
               <ContactPill
                 icon={Phone}
-                label="Phone"
+                label="Practice Contact Number"
                 value={member.practice_contact_number}
                 href={`tel:${member.practice_contact_number}`}
               />
@@ -326,7 +334,7 @@ const MemberDetails = () => {
             {member.fax_number && (
               <ContactPill
                 icon={Phone}
-                label="Fax"
+                label="Fax Number"
                 value={member.fax_number}
               />
             )}
