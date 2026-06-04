@@ -60,7 +60,7 @@ function FadeIn({
 /* ---------------- Main Component ---------------- */
 const BoardMember = () => {
   const { data: boardMembers } = useFetchBoardMembers();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <section className="bg-[#fafafa] py-14 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -100,14 +100,11 @@ const BoardMember = () => {
 
         {/* CTA */}
         <FadeIn direction="up" delay={100}>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white mt-10 rounded-2xl shadow-sm border border-gray-100 px-8 py-4">
-            <div className="max-w-2xl">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                NIMA Members
-              </h1>
-            </div>
-
-            <button onClick={() => navigate("/members")} className="group inline-flex items-center gap-2 bg-[#027027] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#01551d] active:scale-95 transition-all whitespace-nowrap">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-6  mt-10 rounded-2xl  px-8 py-4">
+            <button
+              onClick={() => navigate("/members")}
+              className="group inline-flex items-center gap-2 bg-[#027027] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#01551d] active:scale-95 transition-all whitespace-nowrap"
+            >
               View Membership Directory
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
