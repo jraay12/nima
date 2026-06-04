@@ -44,7 +44,8 @@ export type Member = {
   created_at: string;
   updated_at: string;
   year: string;
-  speciality: string
+  speciality: string;
+  is_active: boolean
 };
 
 export type MemberListProps = {
@@ -464,13 +465,22 @@ export function MemberList({
   mode = "admin",
   imageBaseUrl = import.meta.env.VITE_IMAGE_PREFIX,
 }: MemberListProps) {
+  console.log(members)
   const [search, setSearch] = useState("");
   const [boardOnly, setBoardOnly] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<Member | null>(null); // 👈 add this
+  const [pendingDelete, setPendingDelete] = useState<Member | null>(null);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const upsertMutation = useCreateMember();
   const deactivateMutation = useDeactivateMember();
-  const filtered = members?.filter((m) => {
+  const [tab, setTab] = useState<"active" | "archived">("active");
+
+  
+  const tabFiltered = members?.filter((m) =>
+    tab === "active" ? m.is_active : !m.is_active,
+  null
+  );
+
+  const filtered = tabFiltered?.filter((m) => {
     const q = search.toLowerCase();
     const matchesSearch =
       !q ||
@@ -485,13 +495,10 @@ export function MemberList({
   const handleDeleteConfirm = () => {
     if (!pendingDelete) return;
     deactivateMutation.mutate(pendingDelete.id, {
-      onSuccess: () => {
-        setPendingDelete(null);
-      },
+      onSuccess: () => setPendingDelete(null),
     });
   };
 
-  // ── Admin layout ──
   if (mode === "admin") {
     return (
       <div>
@@ -504,15 +511,11 @@ export function MemberList({
         )}
         {editingMember && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
-            {/* Backdrop */}
             <div
               className="fixed inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => setEditingMember(null)}
             />
-
-            {/* Modal panel */}
             <div className="relative bg-gray-50 rounded-2xl w-full max-w-3xl my-8 shadow-2xl">
-              {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white rounded-t-2xl">
                 <div>
                   <h2 className="text-base font-bold text-gray-900">
@@ -530,8 +533,6 @@ export function MemberList({
                   <X className="w-4 h-4" />
                 </button>
               </div>
-
-              {/* Form */}
               <div className="p-6">
                 <MemberForm
                   defaultMember={editingMember}
@@ -547,6 +548,33 @@ export function MemberList({
             </div>
           </div>
         )}
+
+        {/* ✅ Tab toggle */}
+        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit mb-5">
+          <button
+            type="button"
+            onClick={() => setTab("active")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              tab === "active"
+                ? "bg-white shadow text-gray-900"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("archived")}
+            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              tab === "archived"
+                ? "bg-white shadow text-gray-900"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Archived
+          </button>
+        </div>
+
         {/* Toolbar */}
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
@@ -580,7 +608,9 @@ export function MemberList({
         {filtered?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">
             <User className="w-10 h-10 mb-3 opacity-30" />
-            <p className="text-sm font-medium">No members found</p>
+            <p className="text-sm font-medium">
+              No {tab === "archived" ? "archived" : ""} members found
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -599,10 +629,9 @@ export function MemberList({
     );
   }
 
-  // ── Public layout ──
+  // ── Public layout (unchanged — archived members never shown publicly) ──
   return (
     <div>
-      {/* Search */}
       <div className="flex items-center gap-3 mb-8 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -629,14 +658,14 @@ export function MemberList({
         </button>
       </div>
 
-      {filtered?.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
           <User className="w-12 h-12 mb-3 opacity-20" />
           <p className="text-base font-medium">No members found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filtered?.map((member) => (
+          {filtered.map((member) => (
             <PublicMemberCard
               key={member.id}
               member={member}

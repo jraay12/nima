@@ -163,7 +163,7 @@ const Sidebar = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => handleLogout()}
               className="text-white/30 hover:text-white/70 transition-colors"
               aria-label="Log out"
             >
