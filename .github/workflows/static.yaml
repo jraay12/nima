@@ -24,8 +24,8 @@ jobs:
       - name: Build Vite app
         run: npm run build
         env:
-          VITE_IMAGE_PREFIX: https://deadline-academy-novel-gold.trycloudflare.com
-          VITE_API_URL: https://deadline-academy-novel-gold.trycloudflare.com
+          VITE_IMAGE_PREFIX: https://soccer-captured-beginner-leading.trycloudflare.com
+          VITE_API_URL: https://soccer-captured-beginner-leading.trycloudflare.com
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
