@@ -465,7 +465,30 @@ export function MemberList({
   mode = "admin",
   imageBaseUrl = import.meta.env.VITE_IMAGE_PREFIX,
 }: MemberListProps) {
-  console.log(members)
+  console.log(members);
+
+  const BOARD_TITLES = [
+    "Chairman of the Board",
+    "Board Member",
+    "Board Secretary",
+  ];
+
+  const getSortableMemberName = (name?: string | null) => {
+    return (name ?? "")
+      .replace(/^dr\.?\s+/i, "")
+      .trim()
+      .toLowerCase();
+  };
+
+  const getBoardTitleRank = (title?: string | null) => {
+    const index = BOARD_TITLES.findIndex(
+      (boardTitle) =>
+        boardTitle.toLowerCase() === (title ?? "").trim().toLowerCase(),
+    );
+
+    return index === -1 ? BOARD_TITLES.length : index;
+  };
+
   const [search, setSearch] = useState("");
   const [boardOnly, setBoardOnly] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Member | null>(null);
@@ -474,26 +497,43 @@ export function MemberList({
   const deactivateMutation = useDeactivateMember();
   const [tab, setTab] = useState<"active" | "archived">("active");
 
-  
   const tabFiltered = members?.filter((m) =>
     tab === "active" ? m.is_active : !m.is_active,
-  null
   );
 
-  const filtered = tabFiltered?.filter((m) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      !q ||
-      m.full_name!.toLowerCase().includes(q) ||
-      m.practice_name!.toLowerCase().includes(q) ||
-      (m.board_title ?? "").toLowerCase().includes(q) ||
-      m.city!.toLowerCase().includes(q);
-    const matchesBoard = !boardOnly || m.is_boardMember;
-    return matchesSearch && matchesBoard;
-  });
+  const filtered = [...(tabFiltered ?? [])]
+    .filter((m) => {
+      const q = search.trim().toLowerCase();
+
+      const matchesSearch =
+        !q ||
+        (m.full_name ?? "").toLowerCase().includes(q) ||
+        (m.practice_name ?? "").toLowerCase().includes(q) ||
+        (m.board_title ?? "").toLowerCase().includes(q) ||
+        (m.city ?? "").toLowerCase().includes(q);
+
+      const matchesBoard = !boardOnly || m.is_boardMember;
+
+      return matchesSearch && matchesBoard;
+    })
+    .sort((a, b) => {
+      if (boardOnly) {
+        const rankA = getBoardTitleRank(a.board_title);
+        const rankB = getBoardTitleRank(b.board_title);
+
+        if (rankA !== rankB) {
+          return rankA - rankB;
+        }
+      }
+
+      return getSortableMemberName(a.full_name).localeCompare(
+        getSortableMemberName(b.full_name),
+      );
+    });
 
   const handleDeleteConfirm = () => {
     if (!pendingDelete) return;
+
     deactivateMutation.mutate(pendingDelete.id, {
       onSuccess: () => setPendingDelete(null),
     });
@@ -509,12 +549,14 @@ export function MemberList({
             onConfirm={handleDeleteConfirm}
           />
         )}
+
         {editingMember && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
             <div
               className="fixed inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => setEditingMember(null)}
             />
+
             <div className="relative bg-gray-50 rounded-2xl w-full max-w-3xl my-8 shadow-2xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white rounded-t-2xl">
                 <div>
@@ -525,6 +567,7 @@ export function MemberList({
                     {editingMember.full_name}
                   </p>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => setEditingMember(null)}
@@ -533,6 +576,7 @@ export function MemberList({
                   <X className="w-4 h-4" />
                 </button>
               </div>
+
               <div className="p-6">
                 <MemberForm
                   defaultMember={editingMember}
@@ -562,6 +606,7 @@ export function MemberList({
           >
             Active
           </button>
+
           <button
             type="button"
             onClick={() => setTab("archived")}
@@ -587,6 +632,7 @@ export function MemberList({
                 focus:border-[#027027] focus:ring-2 focus:ring-[#027027]/10 transition-all"
             />
           </div>
+
           <button
             type="button"
             onClick={() => setBoardOnly((v) => !v)}
@@ -600,12 +646,13 @@ export function MemberList({
             <Crown className="w-4 h-4" />
             Board only
           </button>
+
           <span className="text-xs text-gray-400 font-medium">
-            {filtered?.length} member{filtered?.length !== 1 ? "s" : ""}
+            {filtered.length} member{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
 
-        {filtered?.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">
             <User className="w-10 h-10 mb-3 opacity-30" />
             <p className="text-sm font-medium">
@@ -614,7 +661,7 @@ export function MemberList({
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered?.map((member) => (
+            {filtered.map((member) => (
               <AdminMemberCard
                 key={member.id}
                 member={member}
@@ -629,7 +676,7 @@ export function MemberList({
     );
   }
 
-  // ── Public layout (unchanged — archived members never shown publicly) ──
+  // ── Public layout
   return (
     <div>
       <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -643,6 +690,7 @@ export function MemberList({
               focus:border-[#027027] focus:ring-2 focus:ring-[#027027]/10 transition-all shadow-sm"
           />
         </div>
+
         <button
           type="button"
           onClick={() => setBoardOnly((v) => !v)}
@@ -658,14 +706,14 @@ export function MemberList({
         </button>
       </div>
 
-      {filtered?.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
           <User className="w-12 h-12 mb-3 opacity-20" />
           <p className="text-base font-medium">No members found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filtered?.map((member) => (
+          {filtered.map((member) => (
             <PublicMemberCard
               key={member.id}
               member={member}

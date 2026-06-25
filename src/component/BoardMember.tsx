@@ -57,10 +57,23 @@ function FadeIn({
   );
 }
 
+const BOARD_TITLES = [
+  "Chairman of the Board",
+  "Board Member",
+  "Board Secretary",
+];
+
 /* ---------------- Main Component ---------------- */
 const BoardMember = () => {
   const { data: boardMembers } = useFetchBoardMembers();
   const navigate = useNavigate();
+
+  const sortedBoardMembers = [...(boardMembers ?? [])].sort((a, b) => {
+    const rankA = BOARD_TITLES.indexOf(a.board_title ?? "");
+    const rankB = BOARD_TITLES.indexOf(b.board_title ?? "");
+
+    return rankA - rankB;
+  });
   return (
     <section className="bg-[#fafafa] py-14 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -82,7 +95,7 @@ const BoardMember = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {boardMembers?.map((member: any, i: number) => (
+          {sortedBoardMembers?.map((member: any, i: number) => (
             <FadeIn key={member.id ?? i} direction="up" delay={i * 80}>
               <MemberCard
                 image={
