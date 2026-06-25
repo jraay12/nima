@@ -302,7 +302,7 @@ const MemberDetails = () => {
           {/* Avatar + name row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
             {/* Avatar */}
-            <div className="w-28 h-28 md:w-36 md:h-40 rounded-2xl overflow-hidden shrink-0 ring-4 ring-white shadow-lg -mt-20 sm:-mt-24 bg-[#ebf5ee]">
+            <div className="w-28 h-28 md:w-36 md:h-50 rounded-2xl overflow-hidden shrink-0 ring-4 ring-white shadow-lg -mt-20 sm:-mt-24 bg-[#ebf5ee]">
               <Avatar
                 member={member}
                 imageBaseUrl={import.meta.env.VITE_IMAGE_PREFIX}
