@@ -27,24 +27,24 @@ import { MemberForm } from "./MemberForm";
 
 export type Member = {
   id: string;
-  full_name: string;
-  practice_name: string;
-  is_boardMember: boolean;
+  full_name: string | null;
+  practice_name: string | null;
+  is_boardMember: boolean | null;
   board_title: string | null;
-  practice_email: string;
+  practice_email: string | null;
   practice_referral_email: string | null;
-  practice_contact_number: string;
-  fax_number: string;
-  website: string;
+  practice_contact_number: string | null;
+  fax_number: string | null;
+  website: string | null;
   biography: string | string[] | object;
-  image_path: string | null;
-  city: string;
-  state: string;
-  country: string;
+  image_path: string | null | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
   created_at: string;
   updated_at: string;
-  year: string;
-  speciality: string;
+  year: string | null;
+  speciality: string | null;
   is_active: boolean
 };
 
@@ -156,7 +156,7 @@ function MemberAvatar({
     return (
       <img
         src={src}
-        alt={member.full_name}
+        alt={member.full_name!}
         onError={() => setImgError(true)}
         className={`${sizeMap[size]} rounded-full object-cover shrink-0 ring-2 ring-white shadow-sm`}
       />
@@ -168,7 +168,7 @@ function MemberAvatar({
       className={`${sizeMap[size]} rounded-full shrink-0 bg-[#ebf5ee] flex items-center justify-center ring-2 ring-white shadow-sm`}
     >
       <span className="font-bold text-[#027027]">
-        {getInitials(member.full_name)}
+        {getInitials(member.full_name!)}
       </span>
     </div>
   );
@@ -235,7 +235,7 @@ function AdminMemberCard({
   onDelete?: (m: Member) => void;
 }) {
   const currentYear = new Date().getFullYear().toString();
-  const activeMember = currentYear <= member.year;
+  const activeMember = currentYear <= member.year!;
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
       <div className="flex items-start gap-4">
@@ -484,10 +484,10 @@ export function MemberList({
     const q = search.toLowerCase();
     const matchesSearch =
       !q ||
-      m.full_name.toLowerCase().includes(q) ||
-      m.practice_name.toLowerCase().includes(q) ||
+      m.full_name!.toLowerCase().includes(q) ||
+      m.practice_name!.toLowerCase().includes(q) ||
       (m.board_title ?? "").toLowerCase().includes(q) ||
-      m.city.toLowerCase().includes(q);
+      m.city!.toLowerCase().includes(q);
     const matchesBoard = !boardOnly || m.is_boardMember;
     return matchesSearch && matchesBoard;
   });
