@@ -57,14 +57,22 @@ function tiptapToHtml(node: TiptapDoc | TiptapNode): string {
   }
   const children = (node.content || []).map(tiptapToHtml).join("");
   switch (node.type) {
-    case "doc": return children;
-    case "paragraph": return `<p>${children}</p>`;
-    case "heading": return `<h3>${children}</h3>`;
-    case "bulletList": return `<ul>${children}</ul>`;
-    case "orderedList": return `<ol>${children}</ol>`;
-    case "listItem": return `<li>${children}</li>`;
-    case "blockquote": return `<blockquote>${children}</blockquote>`;
-    default: return children;
+    case "doc":
+      return children;
+    case "paragraph":
+      return `<p>${children}</p>`;
+    case "heading":
+      return `<h3>${children}</h3>`;
+    case "bulletList":
+      return `<ul>${children}</ul>`;
+    case "orderedList":
+      return `<ol>${children}</ol>`;
+    case "listItem":
+      return `<li>${children}</li>`;
+    case "blockquote":
+      return `<blockquote>${children}</blockquote>`;
+    default:
+      return children;
   }
 }
 
@@ -93,14 +101,23 @@ function resolveImageUrl(path: string | null, base?: string): string | null {
 }
 
 function getInitials(name: string): string {
-  return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
 }
-
-
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-function Avatar({ member, imageBaseUrl }: { member: Member; imageBaseUrl?: string }) {
+function Avatar({
+  member,
+  imageBaseUrl,
+}: {
+  member: Member;
+  imageBaseUrl?: string;
+}) {
   const [err, setErr] = useState(false);
   const src = resolveImageUrl(member.image_path, imageBaseUrl);
 
@@ -142,16 +159,26 @@ function ContactPill({
         <Icon className="w-4 h-4 text-[#027027]" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">{label}</p>
-        <p className="text-sm font-medium text-gray-800 truncate group-hover/pill:text-[#027027] transition-colors">{value}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+          {label}
+        </p>
+        <p className="text-sm font-medium text-gray-800 truncate group-hover/pill:text-[#027027] transition-colors">
+          {value}
+        </p>
       </div>
-      {href && <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover/pill:text-[#027027] ml-auto shrink-0 transition-colors" />}
+      {href && (
+        <ExternalLink className="w-3.5 h-3.5 text-gray-300 group-hover/pill:text-[#027027] ml-auto shrink-0 transition-colors" />
+      )}
     </div>
   );
 
   if (href) {
     return (
-      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">
+      <a
+        href={href}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel="noopener noreferrer"
+      >
         {content}
       </a>
     );
@@ -185,7 +212,7 @@ function Skeleton() {
 const MemberDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const {data: member, isLoading} = useFetchMembersById(id!)
+  const { data: member, isLoading } = useFetchMembersById(id!);
   const bioHtml = member ? resolveBiography(member.biography) : "";
 
   if (isLoading) return <Skeleton />;
@@ -206,7 +233,6 @@ const MemberDetails = () => {
 
   return (
     <div className="pb-24">
-
       {/* ── Back Button ── */}
       <div className="mb-4">
         <button
@@ -223,9 +249,19 @@ const MemberDetails = () => {
       {/* ── Hero Banner ── */}
       <div className="relative h-56 md:h-72 rounded-3xl overflow-hidden mb-0 bg-gradient-to-br from-[#013d18] via-[#027027] to-[#0a9e3a]">
         {/* Decorative pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          className="absolute inset-0 w-full h-full opacity-10"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <defs>
-            <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <pattern
+              id="dots"
+              x="0"
+              y="0"
+              width="24"
+              height="24"
+              patternUnits="userSpaceOnUse"
+            >
               <circle cx="2" cy="2" r="1.5" fill="white" />
             </pattern>
           </defs>
@@ -249,8 +285,10 @@ const MemberDetails = () => {
         {/* Board badge */}
         {member.is_boardMember && (
           <div className="absolute top-5 right-5 z-10">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest
-              px-3 py-1.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30 backdrop-blur-sm">
+            <span
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest
+              px-3 py-1.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30 backdrop-blur-sm"
+            >
               <Crown className="w-3.5 h-3.5" />
               {member.board_title ?? "Board Member"}
             </span>
@@ -261,12 +299,14 @@ const MemberDetails = () => {
       {/* ── Profile Card (overlaps hero) ── */}
       <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-10">
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8">
-
           {/* Avatar + name row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
             {/* Avatar */}
-            <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden shrink-0 ring-4 ring-white shadow-lg -mt-20 sm:-mt-24 bg-[#ebf5ee]">
-              <Avatar member={member} imageBaseUrl={import.meta.env.VITE_IMAGE_PREFIX} />
+            <div className="w-28 h-28 md:w-36 md:h-40 rounded-2xl overflow-hidden shrink-0 ring-4 ring-white shadow-lg -mt-20 sm:-mt-24 bg-[#ebf5ee]">
+              <Avatar
+                member={member}
+                imageBaseUrl={import.meta.env.VITE_IMAGE_PREFIX}
+              />
             </div>
 
             {/* Name block */}
@@ -274,19 +314,26 @@ const MemberDetails = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                 {member.full_name}
               </h1>
-              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-sm text-[#027027] font-semibold">
-                  <Building2 className="w-3.5 h-3.5" />
-                  {member.practice_name}
-                </span>
-                {(member.city || member.state) && (
-                  <>
-                    <span className="text-gray-300">·</span>
-                    <span className="inline-flex items-center gap-1 text-sm text-gray-500">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {[member.city, member.state, member.country].filter(Boolean).join(", ")}
-                    </span>
-                  </>
+
+              <div className="mt-1.5 space-y-1">
+                {member.practice_name && (
+                  <span className="flex items-center gap-1.5 text-sm text-[#027027] font-semibold">
+                    <Building2 className="w-3.5 h-3.5" />
+                    {member.practice_name}
+                  </span>
+                )}
+
+                {member.speciality && (
+                  <p className="text-sm text-gray-600">{member.speciality}</p>
+                )}
+
+                {(member.city || member.state || member.country) && (
+                  <span className="flex items-center gap-1 text-sm text-gray-500">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {[member.city, member.state, member.country]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </span>
                 )}
               </div>
             </div>
@@ -350,7 +397,9 @@ const MemberDetails = () => {
               <ContactPill
                 icon={MapPin}
                 label="Location"
-                value={[member.city, member.state, member.country].filter(Boolean).join(", ")}
+                value={[member.city, member.state, member.country]
+                  .filter(Boolean)
+                  .join(", ")}
               />
             )}
           </div>
@@ -362,7 +411,9 @@ const MemberDetails = () => {
             {/* Section header */}
             <div className="flex items-center gap-3 px-6 md:px-8 py-5 border-b border-gray-50">
               <div className="w-1 h-6 rounded-full bg-[#027027]" />
-              <h2 className="text-base font-bold text-gray-900 tracking-tight">Biography</h2>
+              <h2 className="text-base font-bold text-gray-900 tracking-tight">
+                Biography
+              </h2>
             </div>
 
             {/* Bio content */}
