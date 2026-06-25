@@ -1,8 +1,26 @@
+import { useMemo } from "react";
 import { useFetchMembers } from "../features/members/member.hook";
 import MemberList from "../component/MemberList";
 import NimaFooter from "../component/Footer";
+
+const getSortableMemberName = (name?: string | null) => {
+  return (name ?? "")
+    .replace(/^dr\.?\s+/i, "")
+    .trim()
+    .toLowerCase();
+};
+
 const MemberPagePublic = () => {
   const { data } = useFetchMembers();
+
+  const sortedMembers = useMemo(() => {
+    return [...(data ?? [])].sort((a, b) =>
+      getSortableMemberName(a.full_name).localeCompare(
+        getSortableMemberName(b.full_name),
+      ),
+    );
+  }, [data]);
+
   return (
     <div>
       <div className="bg-[#fafafa] min-h-screen py-16 px-6 mt-4">
@@ -20,7 +38,7 @@ const MemberPagePublic = () => {
           </div>
 
           <MemberList
-            members={data}
+            members={sortedMembers}
             mode="public"
             imageBaseUrl={import.meta.env.VITE_IMAGE_PREFIX}
           />
